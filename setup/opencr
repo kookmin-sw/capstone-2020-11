@@ -1,14 +1,24 @@
+# architecture error handleing
+cd opencr_update
+sudo gedit update.sh
+"add in case " aarch64) architecture="arm" ;;
+
 # opencr board permission 
 cd ../../dev
 sudo chmod 777 ttyACM0
+ls -al | grep ttyACM0
 
 # opencr driver update
 cd opencr_update
 export OPENCR_PORT=/dev/ttyACM0
-export OPENCR_MODEL=burger
+export OPENCR_MODEL=waffle
 sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr 
 
 # controller node
 roscore
 roslaunch turtlebot3_bringup turtlebot3_robot.launch
 rosrun turtlebot3_teleop turtlebot3_teleop_key
+
+# tty permission Handling
+sudo gedit /etc/udev/rules.d/10-ttyACM0.rules
+KERNEL=="ttyACM[0-9]", SUBSYSTEMS=="tty" MODE="0777"
