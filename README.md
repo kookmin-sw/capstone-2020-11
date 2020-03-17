@@ -1,4 +1,4 @@
-# ELSA (Elaborate Localization System Architectures)
+# ELSA (Elaborate Localization System Architectects)
 
 ## Olaf 
 <img src="https://github.com/kookmin-sw/capstone-2020-11/blob/master/images/turtle.jpg"   width = "300px" height = "300px"></img>
