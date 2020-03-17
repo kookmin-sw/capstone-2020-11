@@ -1,6 +1,6 @@
 # ELSA (Elaborate Localization System Architectures)
 
-# Olaf -> 사진 한장 넣고..
+## Olaf -> 사진 한장 넣고..
 
 ## 2020년 캡스톤 디자인 11조
 
@@ -15,9 +15,12 @@
 
 ### 3. 팀 소개
 
-- 팀을 소개하세요.
 
-- 팀원정보 및 담당이나 사진 및 SNS를 이용하여 소개하세요.
+```markdown
+* name: 윤찬우
+* email: ycw1879@kookmin.ac.kr
+* role: 
+```
 
 ### 4. 사용법
 
