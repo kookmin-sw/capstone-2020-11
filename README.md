@@ -1,6 +1,8 @@
 # ELSA (Elaborate Localization System Architectures)
 
-## Olaf -> 사진 한장 넣고..
+## Olaf 
+<img src="https://github.com/kookmin-sw/capstone-2020-11/blob/master/images/turtle.jpg"   width = "300px" height = "300px"></img>
+
 
 ## 2020년 캡스톤 디자인 11조
 
