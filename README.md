@@ -15,9 +15,41 @@
 
 ### 3. 팀 소개
 
+## Professor : 주용수
+
+## 김다훈
+```markdown
+* Student ID: -
+* email: 
+* role: 
+```
+## 김선필
+```markdown
+* Student ID: 20143038
+* email: ksp2246@kookmin.ac.kr
+* role: 
+```
+
+## 김명수
+```markdown
+* Student ID: 20133199
+* email: msbmkim@gmail.com
+* role: 
+```
+
+## 배한울
+```markdown
+* Student ID: 20153184
+* email: gksdnf0407@gmail.com
+* role: 
+```
+
+## 윤찬우
+
+<img src="https://github.com/kookmin-sw/capstone-2020-11/blob/master/images/chanwoo.jpeg"   width = "300px" height = "300px"></img>
 
 ```markdown
-* name: 윤찬우
+* Student ID: 20153202
 * email: ycw1879@kookmin.ac.kr
 * role: 
 ```
