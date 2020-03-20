@@ -1,0 +1,15 @@
+# OS Files #
+.DS_Store
+.svn
+
+# Windows image file caches
+Thumbs.db
+
+# Intellij
+.idea
+*.iml
+out
+MANIFEST.MF
+
+# VS Code
+.vscode
