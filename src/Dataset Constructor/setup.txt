@@ -1,0 +1,15 @@
+# init virtual env
+conda activate indoor
+
+# install package
+conda install pyqt=5
+conda install -c anaconda lxml
+
+# Do make 
+make qt5py3 or pyrcc5 -o resources.py resources.qrc
+python labelImg.py
+
+# labeling the image -> https://wingnim.tistory.com/58
+save type : yolo
+change Save Dir
+
