@@ -71,7 +71,7 @@
 ### 4. 사용법
 
 - Opencr Setup
-       ```
+```markdown
     cd /dev
     sudo chmod 777 ttyACM0
     ls -al | grep ttyACM0
@@ -80,8 +80,7 @@
     export OPENCR_PORT=/dev/ttyACM0
     export OPENCR_MODEL=waffle
     sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
-    
-    ```
+```
 
 
 ### 5. 기타
