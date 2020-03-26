@@ -70,7 +70,14 @@
 
 ### 4. 사용법
 
-- 소스코드제출시 설치법이나 사용법을 작성하세요.
+- Opencr Setup
+   '''
+    cd /dev
+    sudo chmod 777 ttyACM0
+    ls -al | grep ttyACM0
+   '''
+   
+
 
 ### 5. 기타
 
