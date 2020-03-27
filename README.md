@@ -13,7 +13,7 @@
 
 ## 3. 소개 영상
 
-- [Youtube](https://youtu.be/V9RMH4tUaUQ, "Project OLAF")
+- [Youtube](https://youtu.be/V9RMH4tUaUQ/)
   
 ## 4. 팀 소개
 
