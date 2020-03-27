@@ -10,8 +10,12 @@
 ## 2. Abstract
 
 >   Our project goal is to build a robot that guides the way indoors to user. Robots are based on trutlebot3.</br> Robots have LiDAR sensor, camera, Encoder and IMU sensors. The core technologies of robots are localization, SLAM and navigation. </br>SLAM stands for 'Simultaneous Localization and Mapping'. The SLAM receives values direction from IMU, acceleration and angular velocity from Encoder, surrounding environment data from LiDAR. Then robots localizate themselves and create maps. To do localiztion, first obtain the local map through SLAM. </br>Then, for localization, compare the value measured in real time through LiDAR with the local map. It is not safe to localize only one LiDAR sensor. So robots calculates direction with the IMU and calculates accelation and angular velocity with the Encoder to modify robots position whenever robots move. </br>To do navigation, robots use local map created by SLAM and position calculated by localization. First, robots receive the destination from the user through the app. Second, The robot creates waypoints between its position and destination. Finally, Robots move to the destination use shortest path algorithm. If robots meet obstacle, robots avoid obstacles.If the camera detects the obstacles during the navigation, robots will move to the destination after avoiding obstacles.</br>
+
+## 3. 소개 영상
+
+- [Youtube](https://youtu.be/V9RMH4tUaUQ, "Project OLAF")
   
-## 3. 팀 소개
+## 4. 팀 소개
 
 ### Professor : 주용수
 
@@ -84,7 +88,7 @@
   
 ```
 
-## 4. 사용법
+## 5. 사용법
 
 - Opencr Driver Install
 ```markdown
@@ -108,7 +112,3 @@
     sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
 ```
 
-
-## 5. 소개 영상
-
-- [Youtube](https://youtube.com, "Project OLAF")
