@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/devel
+
+Name: gps_common
+Description: Description of gps_common
+Version: 0.2.0
+Cflags: -I/home/nvidia/olaf/devel/include -I/home/nvidia/olaf/src/gps_common/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime message_filters nav_msgs roscpp sensor_msgs std_msgs rospy

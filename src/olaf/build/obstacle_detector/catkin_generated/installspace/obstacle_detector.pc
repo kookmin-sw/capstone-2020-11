@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/install
+
+Name: obstacle_detector
+Description: Description of obstacle_detector
+Version: 1.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lscans_merger -lobstacle_extractor -lobstacle_tracker -lobstacle_publisher -lobstacle_detector_nodelets -lobstacle_detector_gui
+Requires: roscpp nodelet rviz std_msgs std_srvs geometry_msgs sensor_msgs tf laser_geometry message_runtime
