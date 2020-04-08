@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/devel_isolated/race
+
+Name: race
+Description: Description of race
+Version: 0.0.0
+Cflags: -I/home/nvidia/olaf/devel_isolated/race/include
+Libs: -L${prefix}/lib 
+Requires: 

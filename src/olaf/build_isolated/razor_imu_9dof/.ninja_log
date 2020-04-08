@@ -1,0 +1,8 @@
+# ninja log v5
+3	239	0	/home/nvidia/olaf/devel_isolated/razor_imu_9dof/include/razor_imu_9dof/imuConfig.h	6b2cb24e873eb99f
+3	239	0	/home/nvidia/olaf/devel_isolated/razor_imu_9dof/share/razor_imu_9dof/docs/imuConfig.dox	6b2cb24e873eb99f
+3	239	0	/home/nvidia/olaf/devel_isolated/razor_imu_9dof/share/razor_imu_9dof/docs/imuConfig-usage.dox	6b2cb24e873eb99f
+3	239	0	/home/nvidia/olaf/devel_isolated/razor_imu_9dof/lib/python2.7/dist-packages/razor_imu_9dof/cfg/imuConfig.py	6b2cb24e873eb99f
+3	239	0	/home/nvidia/olaf/devel_isolated/razor_imu_9dof/share/razor_imu_9dof/docs/imuConfig.wikidoc	6b2cb24e873eb99f
+1	174	0	CMakeFiles/install.util	f193f0de442c1f8a
+0	95	0	CMakeFiles/install.util	f193f0de442c1f8a

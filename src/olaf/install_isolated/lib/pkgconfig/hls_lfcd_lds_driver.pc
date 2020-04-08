@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/install_isolated
+
+Name: hls_lfcd_lds_driver
+Description: Description of hls_lfcd_lds_driver
+Version: 1.1.0
+Cflags: -I${prefix}/include -I/usr/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs

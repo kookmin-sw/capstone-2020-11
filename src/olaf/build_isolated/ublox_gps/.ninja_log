@@ -1,0 +1,12 @@
+# ninja log v5
+2	5652	0	CMakeFiles/ublox_logger_node.dir/src/logger_node_pa.cpp.o	3eb1f126bed988f3
+3	6775	0	CMakeFiles/ublox_logger_node.dir/src/raw_data_pa.cpp.o	1cf1c19f0f2624d4
+6776	7192	0	/home/nvidia/olaf/devel_isolated/ublox_gps/lib/ublox_gps/ublox_logger	fc6e29712ab57ff7
+1	18228	0	CMakeFiles/ublox_gps.dir/src/gps.cpp.o	352868d67acad1f4
+18229	18876	0	/home/nvidia/olaf/devel_isolated/ublox_gps/lib/libublox_gps.so	4f8ede815dc96519
+18878	18956	0	CMakeFiles/ublox_gps_node.dir/src/mkgmtime.c.o	6708e5796f3e0ffa
+18879	27428	0	CMakeFiles/ublox_gps_node.dir/src/raw_data_pa.cpp.o	814129c2119d390f
+18877	61047	0	CMakeFiles/ublox_gps_node.dir/src/node.cpp.o	8106689b93becd39
+61048	63221	0	/home/nvidia/olaf/devel_isolated/ublox_gps/lib/ublox_gps/ublox_gps	36488bb1943ddc5b
+3	110	0	CMakeFiles/install.util	1a676b1a0f66eaf8
+1	47	0	CMakeFiles/install.util	1a676b1a0f66eaf8

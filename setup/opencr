@@ -26,7 +26,10 @@ KERNEL=="ttyACM[0-9]", SUBSYSTEMS=="tty" MODE="0777"
 # SLAM
 export TURTLEBOT3_MODEL=waffle
 roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
-
-# SLAM MAP SAVE
 rosrun map_server map_saver -f ~/file_name
 -> /home/nvidia/file_name.yaml && /home/nvidia/file_name.pgm
+
+# cartographer
+export TURTLEBOT3_MODEL=waffle
+source ~/olaf/install_isolated/setup.bash
+roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer

@@ -7,7 +7,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
 #include <sensor_msgs/Imu.h>
-#include <obstacle_detector/Obstacles.h>
+//#include <obstacle_detector/Obstacles.h>
 #include <geometry_msgs/Point.h>
 
 #include <vector>
@@ -197,7 +197,7 @@ void odom_front_callback(const nav_msgs::Odometry::ConstPtr& odom) {
     if(cal_distance(current_position, path[current_path_index]) < path_arrived_threshold) current_path_index++;
 }
 
-
+/*
 void obstacle_callback(const obstacle_detector::Obstacles::ConstPtr& msg) {
     geometry_msgs::Point target_point;
     target_point.x = 100000;
@@ -231,7 +231,7 @@ void obstacle_callback(const obstacle_detector::Obstacles::ConstPtr& msg) {
 
     steering = -angle-5;
 }
-
+*/
 void odom_rear_callback(const nav_msgs::Odometry::ConstPtr& odom) {
     rear_position.x = odom->pose.pose.position.x;
     rear_position.y = odom->pose.pose.position.y; 
@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
     ros::Subscriber lane_info_sub = nh.subscribe("lane_info", 1, lane_info_callback);
     ros::Subscriber mode_sub = nh.subscribe("mode", 1, mode_callback);
     ros::Subscriber imu_sub = nh.subscribe("imu/data", 1, imu_callback);
-    ros::Subscriber obstacle_sub = nh.subscribe("obstacles", 1, obstacle_callback);
+    //ros::Subscriber obstacle_sub = nh.subscribe("obstacles", 1, obstacle_callback);
     drive_msg_pub = nh.advertise<race::drive_values>("control_value", 1);
 
     ros::spin();

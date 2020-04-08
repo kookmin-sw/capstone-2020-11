@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/nvidia/olaf/devel_isolated/hls_lfcd_lds_driver/setup.sh

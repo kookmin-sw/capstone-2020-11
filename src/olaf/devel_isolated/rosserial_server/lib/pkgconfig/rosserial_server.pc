@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/devel_isolated/rosserial_server
+
+Name: rosserial_server
+Description: Description of rosserial_server
+Version: 0.8.0
+Cflags: -I/home/nvidia/olaf/src/rosserial/rosserial_server/include
+Libs: -L${prefix}/lib -lrosserial_server_lookup
+Requires: roscpp rosserial_msgs std_msgs topic_tools

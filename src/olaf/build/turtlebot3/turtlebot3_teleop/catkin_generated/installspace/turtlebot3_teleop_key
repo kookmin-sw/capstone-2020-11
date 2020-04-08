@@ -128,7 +128,7 @@ if __name__=="__main__":
     rospy.init_node('turtlebot3_teleop')
     pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 
-    turtlebot3_model = rospy.get_param("model", "burger")
+    turtlebot3_model = rospy.get_param("model", "waffle")
 
     status = 0
     target_linear_vel   = 0.0

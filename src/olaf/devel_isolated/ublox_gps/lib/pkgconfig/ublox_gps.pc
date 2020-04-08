@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/devel_isolated/ublox_gps
+
+Name: ublox_gps
+Description: Description of ublox_gps
+Version: 1.1.2
+Cflags: -I/home/nvidia/olaf/src/ublox/ublox_gps/include
+Libs: -L${prefix}/lib -lublox_gps
+Requires: roscpp ublox_msgs ublox_serialization

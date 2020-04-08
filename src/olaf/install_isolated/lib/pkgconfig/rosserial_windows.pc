@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/install_isolated
+
+Name: rosserial_windows
+Description: Description of rosserial_windows
+Version: 0.8.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

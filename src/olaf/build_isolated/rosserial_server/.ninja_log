@@ -1,0 +1,11 @@
+# ninja log v5
+1	532	0	CMakeFiles/rosserial_server_lookup.dir/src/msg_lookup.cpp.o	243a78a69735a36b
+532	730	0	/home/nvidia/olaf/devel_isolated/rosserial_server/lib/librosserial_server_lookup.so	2e6a3091912e773
+730	12177	0	CMakeFiles/rosserial_server_socket_node.dir/src/socket_node.cpp.o	34116daf12219d75
+12178	12781	0	/home/nvidia/olaf/devel_isolated/rosserial_server/lib/rosserial_server/socket_node	be7f99bbdfa9efb2
+731	16128	0	CMakeFiles/rosserial_server_serial_node.dir/src/serial_node.cpp.o	571cc56f6acc7cc5
+731	16215	0	CMakeFiles/rosserial_server_udp_socket_node.dir/src/udp_socket_node.cpp.o	bf41e8d38f6340f1
+16129	16800	0	/home/nvidia/olaf/devel_isolated/rosserial_server/lib/rosserial_server/serial_node	2866137ef3e479b8
+16215	16847	0	/home/nvidia/olaf/devel_isolated/rosserial_server/lib/rosserial_server/udp_socket_node	f0a2268b15700d0d
+3	87	0	CMakeFiles/install.util	cfa9a204fa0fffec
+1	49	0	CMakeFiles/install.util	cfa9a204fa0fffec

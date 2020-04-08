@@ -1,0 +1,3 @@
+repository='https://github.com/abseil/abseil-cpp.git'
+module=''
+tag=''

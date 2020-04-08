@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/CMakeFiles/abseil"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/CMakeFiles/abseil.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/CMakeFiles/abseil-complete.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-install.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-mkdir.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-download.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-update.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-patch.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-configure.rule"
+		},
+		{
+			"file" : "/home/nvidia/olaf/build_isolated/cartographer_ros/abseil/src/abseil-stamp/abseil-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"abseil"
+		],
+		"name" : "abseil"
+	}
+}

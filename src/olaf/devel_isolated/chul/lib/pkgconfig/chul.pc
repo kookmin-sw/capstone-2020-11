@@ -1,0 +1,8 @@
+prefix=/home/nvidia/olaf/devel_isolated/chul
+
+Name: chul
+Description: Description of chul
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
