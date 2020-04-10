@@ -1,0 +1,41 @@
+NEW_TERMINAL="gnome-terminal -e"
+
+${NEW_TERMINAL} roscore
+
+cd /home/nvidia/opencr_update
+export OPENCR_PORT=/dev/ttyACM0
+export OPENCR_MODEL=waffle
+sudo ./update.sh ${OPENCR_PORT} ${OPENCR_MODEL}.opencr
+
+export TURTLEBOT3_MODEL=waffle
+
+echo "[ SLAM ALGORITHM ]"
+echo ""
+echo "  - 1. gmapping"
+echo "  - 2. cartographer"
+echo ""
+echo -e "* choose algorithm number: "
+read ALGORITHM
+
+echo -e "wanna save mapfile? [y/N]: "
+read YESNO
+if [ ${YESNO} == "Y" ] || [ ${YESNO} == "y" ]; then
+    echo -e "save file name: "
+    read SAVE_FILENAME
+    
+    trap '${NEW_TERMINAL} "rosrun map_server map_saver -f /home/nvidia/${SAVE_FILENAME}"' SIGINT
+fi
+
+${NEW_TERMINAL} "roslaunch turtlebot3_bringup turtlebot3_robot.launch"
+${NEW_TERMINAL} "rosrun turtlebot3_teleop turtlebot3_teleop_key"
+
+if [ ${ALGORITHM} == "1" ] || [ ${ALGORITHM} == "gmapping" ]; then
+
+    roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+    
+elif [ ${ALGORITHM} == "2" ] || [ ${ALGORITHM} == "cartographer" ]; then\
+
+    source ~/olaf/install_isolated/setup.bash
+    roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer
+
+fi
