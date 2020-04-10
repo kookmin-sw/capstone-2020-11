@@ -13,3 +13,6 @@ MANIFEST.MF
 
 # VS Code
 .vscode
+
+lds_driver
+lds_driver.o
