@@ -2,7 +2,7 @@ NEW_TERMINAL="gnome-terminal -e"
 
 ${NEW_TERMINAL} roscore
 
-cd /home/nvidia/opencr_update
+cd ../opencr_update
 export OPENCR_PORT=/dev/ttyACM0
 export OPENCR_MODEL=waffle
 sudo ./update.sh ${OPENCR_PORT} ${OPENCR_MODEL}.opencr
