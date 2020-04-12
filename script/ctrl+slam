@@ -14,7 +14,7 @@ echo ""
 echo "  - 1. gmapping"
 echo "  - 2. cartographer"
 echo ""
-echo -e "* choose algorithm number: "
+echo -e "* choose number: "
 read ALGORITHM
 if [[ ${ALGORITHM} != "1" ]] && [[ ${ALGORITHM} != "2" ]]; then
   echo "Wrong number."
@@ -26,7 +26,7 @@ if [[ ${YESNO} == "Y" ]] || [[ ${YESNO} == "y" ]]; then
   echo -e "save file name: "
   read SAVE_FILENAME
 
-  trap '${NEW_TERMINAL} "rosrun map_server map_saver -f /home/nvidia/${SAVE_FILENAME}"' SIGINT
+  trap 'rosrun map_server map_saver -f /home/nvidia/${SAVE_FILENAME}' SIGINT
 fi
 
 ${NEW_TERMINAL} "roslaunch turtlebot3_bringup turtlebot3_robot.launch"
@@ -34,11 +34,14 @@ ${NEW_TERMINAL} "rosrun turtlebot3_teleop turtlebot3_teleop_key"
 
 if [[ ${ALGORITHM} == "1" ]]; then
 
-  roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+  ${NEW_TERMINAL} "roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping"
 
-elif [[ ${ALGORITHM} == "2" ]]; then\
+elif [[ ${ALGORITHM} == "2" ]]; then
 
   source ~/olaf/install_isolated/setup.bash
-  roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer
+  ${NEW_TERMINAL} "roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer"
 
 fi
+
+echo -e "waiting for interrupt..."
+read interrupt
