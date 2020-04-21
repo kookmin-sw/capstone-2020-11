@@ -89,27 +89,46 @@ if __name__ == '__main__':
     lines_left.reverse()
     right_cnt = rank
     left_cnt = rank
+    sum_start_x = 0
+    sum_start_y = 0
+    sum_end_x = 0
+    sum_end_y = 0
     if lines_left is not None:
         for line in lines_left:
             if left_cnt == 0:
                 break
             left_cnt -= 1
-            x1 = line[0]
-            y1 = line[1]
-            x2 = line[2]
-            y2 = line[3]
-            cv2.line(dst, (x1, y1 + roi_height), (x2, y2 + roi_height), (255, 0, 0), 2)
+            sum_start_x += line[0]
+            sum_start_y += line[1]
+            sum_end_x += line[2]
+            sum_end_y += line[3]
+            # x1 = line[0]
+            # y1 = line[1]
+            # x2 = line[2]
+            # y2 = line[3]
+            # cv2.line(dst, (x1, y1 + roi_height), (x2, y2 + roi_height), (255, 0, 0), 2)
     if lines_right is not None:
         for line in lines_right:
             if right_cnt == 0:
                 break
             right_cnt -= 1
-            x1 = line[0]
-            y1 = line[1]
-            x2 = line[2]
-            y2 = line[3]
-            print
-            cv2.line(dst, (x1, y1 + roi_height), (x2, y2 + roi_height), (0, 0, 255), 2)
+            sum_start_x += line[0]
+            sum_start_y += line[1]
+            sum_end_x += line[2]
+            sum_end_y += line[3]
+            # x1 = line[0]
+            # y1 = line[1]
+            # x2 = line[2]
+            # y2 = line[3]
+            # cv2.line(dst, (x1, y1 + roi_height), (x2, y2 + roi_height), (0, 0, 255), 2)
+
+    final_x1 = sum_start_x // 20
+    final_y1 = sum_start_y // 20
+    final_x2 = sum_end_x // 20
+    final_y2 = sum_end_y // 20
+    cv2.line(dst, (final_x1, final_y1 + roi_height), (final_x2, final_y2 + roi_height), (0, 0, 255), 5)
+    print('bottom_x :', final_x1, ' bottom_y :', final_y1)
+    print('top_x :', final_x2, ' top_y :', final_y2)
     # ---------------------
     cv2.imshow('result', dst)
     cv2.imshow('Original', image)
