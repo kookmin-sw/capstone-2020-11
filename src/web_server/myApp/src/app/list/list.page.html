@@ -1,0 +1,28 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      목적지 리스트
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-list>
+    <p class="ion-padding-start ion-padding-end">
+      <ion-button (click)="presentActionSheet()" expand="block" fill="outline">
+        미래관 {{floorNum}}층 목적지
+      </ion-button>
+    </p>
+
+    <ion-item button *ngFor="let floor of floorData; let i = index" (click)="alert(i, floor.name)">
+      <ion-avatar slot="start">
+        <ion-icon name="{{floor.icon}}" style="width: 100%; height: 100%;"></ion-icon>
+      </ion-avatar>
+      <ion-label>
+        &nbsp;&nbsp;{{floor.name}}
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

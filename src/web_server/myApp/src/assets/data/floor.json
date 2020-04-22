@@ -1,0 +1,65 @@
+{
+  "floorList": [
+    "4", "6"
+  ],
+  "floorData": {
+    "4": [
+      {
+        "x": 123.456,
+        "y": 100.200,
+        "name": "422호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "445호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 125.456,
+        "y": 362.182,
+        "name": "446호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 198.352,
+        "y": 391.438,
+        "name": "447호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 126.546,
+        "y": 110.928,
+        "name": "424호",
+        "icon": "book-outline"
+      }
+    ],
+    "6": [
+      {
+        "x": 165.366,
+        "y": 462.363,
+        "name": "622호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "G-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 262.366,
+        "y": 363.335,
+        "name": "G-Lab",
+        "icon": "laptop-outline"
+      }
+    ]
+  }
+}
