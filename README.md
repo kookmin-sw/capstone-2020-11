@@ -13,7 +13,8 @@
 
 ## 3. 소개 영상
 
-- [Youtube](https://youtu.be/V9RMH4tUaUQ/)
+- [Youtube](https://youtu.be/V9RMH4tUaUQ/) 계획서발표
+- [Youtube](https://youtu.be/tdBFq6ZRJdE/) 중간보고서
   
 ## 4. 팀 소개
 
