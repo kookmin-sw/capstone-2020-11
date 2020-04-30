@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-// templateUrlFile = 'tabs.page.html';
-// devTemplateUrlFile = 'tabs.page.dev.html';
+// const templateUrlFile = 'tabs.page.html';
+// const devtemplateUrlFile = 'tabs.page.dev.html';
 
 @Component({
   selector: 'app-tabs',
