@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -12,7 +14,13 @@ export class ListPage {
   floorNum: string;
   floorData: any;
 
-  constructor(public actionSheetController: ActionSheetController) {
+  constructor(public actionSheetController: ActionSheetController,
+              public route: ActivatedRoute,
+              public navCtrl: NavController) {
+    this.floorNum = route.snapshot.params.floorNum;
+    if (this.floorNum == null || this.floorNum === undefined) {
+      this.floorNum = '4';
+    }
     this.readData();
   }
 
@@ -32,13 +40,13 @@ export class ListPage {
     fetch('assets/data/floor.json').then(res => res.json())
         .then(json => {
           this.floorList = json.floorList;
-          this.floorNum = '4';
+          // this.floorNum = '4';
           this.floorData = json.floorData[this.floorNum];
           console.log('test\n', this.floorData);
         });
   }
 
-  test() {
+  testScrollTop() {
     document.querySelector('ion-content').scrollToTop(500);
   }
 
@@ -50,11 +58,13 @@ export class ListPage {
     // tslint:disable-next-line:forin
     for (const iter in this.floorList) {
       // console.log('버튼', button);
+      const iterFloorNum = this.floorList[iter];
       buttonList.push({
-        text: String(this.floorList[iter] + '층'),
+        text: String(iterFloorNum + '층'),
         icon: 'arrow-redo-circle-outline',
         handler: () => {
-          console.log('click action', this.floorList[iter] + '\'s sheet!');
+          console.log('click action', iterFloorNum + '\'s sheet!');
+          this.navCtrl.navigateForward('/tabs/list/' + iterFloorNum);
         }
       });
       idx += 1;

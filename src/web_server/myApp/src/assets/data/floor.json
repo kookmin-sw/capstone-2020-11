@@ -1,26 +1,14 @@
 {
   "floorList": [
-    "4", "6"
+    "4", "6", "7"
   ],
   "floorData": {
     "4": [
-      {
-        "x": 123.456,
-        "y": 100.200,
-        "name": "422호",
-        "icon": "book-outline"
-      },
       {
         "x": 234.456,
         "y": 152.582,
         "name": "445호",
         "icon": "book-outline"
-      },
-      {
-        "x": 234.456,
-        "y": 152.582,
-        "name": "중앙 엘레베이터",
-        "icon": "arrow-forward-circle-outline"
       },
       {
         "x": 125.456,
@@ -35,29 +23,97 @@
         "icon": "book-outline"
       },
       {
+        "x": 123.456,
+        "y": 100.200,
+        "name": "422호",
+        "icon": "book-outline"
+      },
+      {
         "x": 126.546,
         "y": 110.928,
         "name": "424호",
         "icon": "book-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 123.456,
+        "y": 100.200,
+        "name": "공통전산실",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 123.456,
+        "y": 100.200,
+        "name": "무한상상실",
+        "icon": "laptop-outline"
       }
     ],
     "6": [
       {
         "x": 165.366,
         "y": 462.363,
-        "name": "622호",
+        "name": "629호",
         "icon": "book-outline"
       },
       {
-        "x": 782.366,
-        "y": 272.272,
-        "name": "G-Lab",
+        "x": 165.366,
+        "y": 462.363,
+        "name": "611호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 165.366,
+        "y": 462.363,
+        "name": "소프트웨어 학부 사무실",
         "icon": "laptop-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
       },
       {
         "x": 262.366,
         "y": 363.335,
         "name": "G-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "T-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "P-Lab",
+        "icon": "laptop-outline"
+      }
+    ],
+    "7": [
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "K-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 262.366,
+        "y": 363.335,
+        "name": "M-Lab",
         "icon": "laptop-outline"
       }
     ]

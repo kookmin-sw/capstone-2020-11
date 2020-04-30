@@ -12,22 +12,27 @@ const routes: Routes = [
         path: 'list',
         children: [
           {
-            path: '',
+            path: ':floorNum',
             loadChildren: () =>
                 import('../list/list.module').then(m => m.ListPageModule)
+          },
+          {
+            path: '',
+            redirectTo: '/tabs/list/4',
+            pathMatch: 'full'
           }
         ]
       },
       {
         path: '',
-        redirectTo: '/tabs/list',
+        redirectTo: '/tabs/list/4',
         pathMatch: 'full'
       }
     ]
   },
   {
     path: '',
-    redirectTo: '/tabs/list',
+    redirectTo: '/tabs/list/4',
     pathMatch: 'full'
   }
 ];
@@ -71,9 +76,14 @@ const devRoutes: Routes = [
         path: 'tab4',
         children: [
           {
-            path: '',
+            path: ':floorNum',
             loadChildren: () =>
-                import('../tab4/tab4.module').then(m => m.Tab4PageModule)
+                import('../tab2/tab2.module').then(m => m.Tab2PageModule)
+          },
+          {
+            path: '',
+            redirectTo: '/tabs/tab4/4',
+            pathMatch: 'full'
           }
         ]
       },
