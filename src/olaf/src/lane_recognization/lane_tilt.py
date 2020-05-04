@@ -63,7 +63,7 @@ if __name__ == '__main__':
             # print(line)
             x1, y1, x2, y2 = line.reshape(4)
             dx = x2 - x1
-            if dx == 0:
+            if dx == 0 or abs(dx) > 30:
                 continue
             dy = y2 - y1
             m = dy / dx
