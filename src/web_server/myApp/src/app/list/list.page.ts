@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -13,10 +13,11 @@ export class ListPage {
   floorList: any;
   floorNum: string;
   floorData: any;
+  private totalData: any;
 
   constructor(public actionSheetController: ActionSheetController,
               public route: ActivatedRoute,
-              public navCtrl: NavController) {
+              public alertController: AlertController) {
     this.floorNum = route.snapshot.params.floorNum;
     if (this.floorNum == null || this.floorNum === undefined) {
       this.floorNum = '4';
@@ -26,11 +27,9 @@ export class ListPage {
 
   alert(idx: number, msg: string) {
     if (idx % 2) {
-      alert('이미 주행중입니다.\n' +
-          '잠시 후 다시 이용해 주시기 바랍니다.');
+      this.presentAlert();
     } else {
-      msg += '해당 장소로 이동하시겠습니까?';
-      confirm(msg);
+      this.presentConfirm(msg, '해당 장소로 이동하시겠습니까?');
     }
   }
 
@@ -40,9 +39,8 @@ export class ListPage {
     fetch('assets/data/floor.json').then(res => res.json())
         .then(json => {
           this.floorList = json.floorList;
-          // this.floorNum = '4';
-          this.floorData = json.floorData[this.floorNum];
-          console.log('test\n', this.floorData);
+          this.totalData = json.floorData;
+          this.floorData = this.totalData[this.floorNum];
         });
   }
 
@@ -52,22 +50,16 @@ export class ListPage {
 
   async presentActionSheet() {
     const buttonList = [];
-    let idx = 0;
-    console.log(this.floorList);
 
-    // tslint:disable-next-line:forin
-    for (const iter in this.floorList) {
-      // console.log('버튼', button);
-      const iterFloorNum = this.floorList[iter];
+    for (const iter of this.floorList) {
       buttonList.push({
-        text: String(iterFloorNum + '층'),
+        text: String(iter + '층'),
         icon: 'arrow-redo-circle-outline',
         handler: () => {
-          console.log('click action', iterFloorNum + '\'s sheet!');
-          this.navCtrl.navigateForward('/tabs/list/' + iterFloorNum);
+          this.floorNum = iter;
+          this.floorData = this.totalData[this.floorNum];
         }
       });
-      idx += 1;
     }
 
     buttonList.push({
@@ -84,5 +76,45 @@ export class ListPage {
       buttons: buttonList
     });
     await actionSheet.present();
+  }
+
+  async presentAlert() {
+    const alert = await this.alertController.create({
+      message: '이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.',
+      buttons: [
+        {
+          text: '확인',
+          handler: () => {
+            console.log('alert click');
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async presentConfirm(head, msg) {
+    const alert = await this.alertController.create({
+      header: head,
+      message: msg,
+      buttons: [
+        {
+          text: '취소',
+          role: 'cancel',
+          handler: () => {
+            console.log('confirm cancel click');
+          }
+        },
+        {
+          text: '확인',
+          handler: () => {
+            console.log('confirm ok click');
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }
