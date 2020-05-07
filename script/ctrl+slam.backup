@@ -30,7 +30,7 @@ if [[ ${YESNO} == "Y" ]] || [[ ${YESNO} == "y" ]]; then
 fi
 
 ${NEW_TERMINAL} "roslaunch turtlebot3_bringup turtlebot3_robot.launch"
-${NEW_TERMINAL} "rosrun turtlebot3_teleop dahun_teleop_key"
+${NEW_TERMINAL} "rosrun turtlebot3_teleop turtlebot3_teleop_key"
 
 if [[ ${ALGORITHM} == "1" ]]; then
 
