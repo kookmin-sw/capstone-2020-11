@@ -33,3 +33,6 @@ rosrun map_server map_saver -f ~/file_name
 export TURTLEBOT3_MODEL=waffle
 source ~/olaf/install_isolated/setup.bash
 roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer
+
+# mapsaver
+rosrun map_server map_saver -f ~/MAP_NAME
