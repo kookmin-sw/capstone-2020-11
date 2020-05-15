@@ -23,7 +23,7 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture('test1.avi')
     while(cap.isOpened()):
         hist = []
-        for i in range(0, 1580):
+        for i in range(0, 1581):
             hist.append(0)
         # hist = np.array([0 for _ in range(1580), dytpe=uint8])
         ret, frame = cap.read()
@@ -73,151 +73,75 @@ if __name__ == '__main__':
                     end_x = int((end_y - b) / m)
                     new_lines.append([start_x, start_y, end_x, end_y])
                     new_x.append(start_x)
-                    if start_x < (width // 2):
-                    #     lines_left.append([start_x, start_y, end_x, end_y])
-                        cv2.line(image, (start_x, start_y), (end_x, end_y), (255, 0, 0), 2)
-                    else:
-                    #     lines_right.append([start_x, start_y, end_x, end_y])
-                        cv2.line(image, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
-        max(hist)
-        # rest = cv2.bitwise_and(view_tp, res)
-        # rest = cv2.bitwise_and(view_tp, view_tp, mask=result)
-        # cv2.imshow('total', view_tp)
+                    # if start_x < (width // 2):
+                    #     cv2.line(image, (start_x, start_y), (end_x, end_y), (255, 0, 0), 2)
+                    # else:
+                    #     cv2.line(image, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
+
+        x=np.linspace(0, 1580, 1580)
+
+        sum_count_100 = []
+        while True:
+            idx = hist.index(max(hist))
+            idx_low = 0
+            idx_up = 1580
+            if idx - 100 < 0:
+                idx_low = 0
+            else:
+                idx_low = idx - 50
+            if idx + 100 >= 1580:
+                idx_up = 1580
+            else:
+                idx_up = idx + 50
+            if sum(hist[idx_low:idx_up]) < 4:
+                break
+            value = [sum(hist[idx_low:idx_up]), idx_low - 250, idx_up - 250, idx]
+
+            zeros = []
+            for i in range(idx_low, idx_up):
+                zeros.append(0)
+            hist[idx_low:idx_up] = zeros
+            sum_count_100.append(value)
+        first_x1 = []
+        first_y1 = []
+        first_x2 = []
+        first_y2 = []
+        second_x1 = []
+        second_y1 = []
+        second_x2 = []
+        second_y2 = []
+        if len(sum_count_100) == 0:
+            cv2.imshow('origin', image)
+            continue
+        elif len(sum_count_100) == 1:
+            cv2.imshow('origin', image)
+            continue
+        else:
+            if sum_count_100[0][0] > sum_count_100[1][0] * 3:
+                cv2.imshow('origin', image)
+                continue
+            for line in new_lines:
+                x1, y1, x2, y2 = line
+                if sum_count_100[0][1] < x1 < sum_count_100[0][2]:
+                    first_x1.append(x1)
+                    first_y1.append(y1)
+                    first_x2.append(x2)
+                    first_y2.append(y2)
+                elif sum_count_100[1][1] < x1 < sum_count_100[1][2]:
+                    second_x1.append(x1)
+                    second_y1.append(y1)
+                    second_x2.append(x2)
+                    second_y2.append(y2)
+                else:
+                    continue
+        x1 = int((np.mean(first_x1) + np.mean(second_x1)) / 2)
+        y1 = int((np.mean(first_y1) + np.mean(second_y1)) / 2)
+        x2 = int((np.mean(first_x2) + np.mean(second_x2)) / 2)
+        y2 = int((np.mean(first_y2) + np.mean(second_y2)) / 2)
+        cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
         cv2.imshow('origin', image)
         cv2.waitKey(1)
-        x=np.linspace(1, 1580, 1579)
-        idx = hist.index(max(hist))
-        idx_low = 0
-        idx_up = 1580
-        if idx - 100 < 0:
-            idx_low = 0
-        else:
-            idx_low = idx - 100
-        if idx + 100 >= 1580:
-            idx_up = 1580
-        else:
-            idx_up = idx + 100
-        first = sum(hist[idx_low:idx_up])
-        # hist[idx_low:idx_up] = 0
-        plt.plot(x, hist)
-        plt.show()
+        # plt.plot(x, np.array(hist))
+        # plt.show()
     cap.release()
     cv2.destroyAllWindows()
-
-"""
-def Region_Of_Interest(img, vertices, color3=(255, 255, 255), color1=255):  # ROI 셋팅
-    mask = np.zeros_like(img)  # mask = img와 같은 크기의 빈 이미지
-    if len(img.shape) > 2:  # Color 이미지(3채널)라면 :
-        color = color3
-    else:  # 흑백 이미지(1채널)라면 :
-        color = color1
-    # vertices에 정한 점들로 이뤄진 다각형부분(ROI 설정부분)을 color로 채움
-    cv2.fillPoly(mask, vertices, color)
-    # 이미지와 color로 채워진 ROI를 합침
-    ROI_image = cv2.bitwise_and(img, mask)
-    return ROI_image
-
-def Roi(img):
-    global width
-    global roi_height, roi_width
-    w = width // 2
-    r = img[roi_height:, w:w + roi_width]
-    l = img[roi_height:, w - roi_width:w]
-    return l, r
-
-def Edge_Recalibration(img):
-    global edge_min, edge_min
-    result = cv2.Canny(img, edge_min, edge_max)
-    return result
-
-if __name__ == '__main__':
-    for root, dirs, files in os.walk('/Users/chanwoo/Downloads/video_data-2'):
-        size = len(files)
-        # for fname in files:
-        for idx in range(1, size + 1):
-            fname = 'frame'+str(idx)+'.png'
-            full_fname = os.path.join(root, fname)
-            if fname == '.DS_Store':
-                continue
-            origin = cv2.imread(full_fname, cv2.IMREAD_COLOR)
-            image = cv2.resize(origin, dsize=(width, height), interpolation=cv2.INTER_AREA)
-            # ---------------------
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            edge = Edge_Recalibration(gray)
-            roi = edge[roi_height:, :]
-            lines = cv2.HoughLinesP(roi, 1, np.pi / 360, 100, hough_min_lengh, hough_max_gap)
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line.reshape(4)
-                    cv2.line(roi, (x1, y1), (x2, y2), 255, 10)
-
-            lines = cv2.HoughLinesP(roi, 1, np.pi / 360, 100, hough_min_lengh, hough_max_gap)
-            lines_left = []
-            lines_right = []
-            dst = image.copy()
-            dst2 = image.copy()
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line.reshape(4)
-                    dx = x2 - x1
-                    if dx == 0 or abs(dx) > 10:
-                        continue
-                    dy = y2 - y1
-                    m = dy / dx
-                    if abs(m) > 0.1 and abs(m) < 300:
-                        cv2.line(image, (x1, y1 + roi_height), (x2, y2 + roi_height), (0, 0, 255), 2)
-                        tp = m * x1
-                        b = y1 - tp
-                        start_y = height - roi_height
-                        start_x = int((start_y - b) / m)
-                        if start_x < 0 or start_x > width:
-                            continue
-                        end_y = 0
-                        end_x = int((end_y - b) / m)
-                        if start_x < (width // 2):
-                            lines_left.append([start_x, start_y, end_x, end_y])
-                        else:
-                            lines_right.append([start_x, start_y, end_x, end_y])
-                        cv2.line(dst2, (start_x, start_y + roi_height), (end_x, end_y + roi_height), (0, 0, 255), 2)
-            # cv2.imshow('candidate', dst2)
-            lines_right.sort(key=lambda x:x[0])
-            lines_left.sort(key=lambda x:x[0])
-            lines_left.reverse()
-            right_cnt = rank
-            left_cnt = rank
-            sum_start_x = 0
-            sum_start_y = 0
-            sum_end_x = 0
-            sum_end_y = 0
-
-            if lines_left is not None:
-                for line in lines_left:
-                    if left_cnt == 0:
-                        break
-                    left_cnt -= 1
-                    sum_start_x += line[0]
-                    sum_start_y += line[1]
-                    sum_end_x += line[2]
-                    sum_end_y += line[3]
-            if lines_right is not None:
-                for line in lines_right:
-                    if right_cnt == 0:
-                        break
-                    right_cnt -= 1
-                    sum_start_x += line[0]
-                    sum_start_y += line[1]
-                    sum_end_x += line[2]
-                    sum_end_y += line[3]
-            if ((20 - left_cnt) - right_cnt) != 0:
-                final_x1 = sum_start_x // ((20 - left_cnt) - right_cnt)
-                final_y1 = sum_start_y // ((20 - left_cnt) - right_cnt)
-                final_x2 = sum_end_x // ((20 - left_cnt) - right_cnt)
-                final_y2 = sum_end_y // ((20 - left_cnt) - right_cnt)
-                cv2.line(dst, (final_x1, final_y1 + roi_height), (final_x2, final_y2 + roi_height), (0, 0, 255), 5)
-                print('bottom_x :', final_x1, ' bottom_y :', final_y1)
-                print('top_x :', final_x2, ' top_y :', final_y2)
-                # ---------------------
-                cv2.imshow('result', dst)
-            # cv2.imshow('Original', image)
-            cv2.waitKey(2)
-            cv2.destroyAllWindows()"""
