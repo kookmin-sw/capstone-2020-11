@@ -13,6 +13,8 @@ centor_gap = 100
 hough_min_lengh = 10
 hough_max_gap = 10
 rank = 10
+histo_gap = 50
+idx_gap = 300
 
 def Edge_Recalibration(img):
     global edge_min, edge_min
@@ -20,11 +22,11 @@ def Edge_Recalibration(img):
     return result
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture('test1.avi')
     cap.set(5, 30)
     while(cap.isOpened()):
         hist = []
-        for i in range(0, 1581):
+        for i in range(0, width + (idx_gap * 2) + 1):
             hist.append(0)
         ret, frame = cap.read()
         kernel = np.ones((7, 7), np.uint8)
@@ -68,9 +70,9 @@ if __name__ == '__main__':
                     b = y1 - tp
                     start_y = height
                     start_x = int((start_y - b) / m)
-                    if start_x <= -250 or start_x > width+250:
+                    if start_x <= -idx_gap or start_x > width+idx_gap:
                         continue
-                    hist[start_x + 250] = hist[start_x + 250] + 1
+                    hist[start_x + idx_gap] = hist[start_x + idx_gap] + 1
                     end_y = 0
                     end_x = int((end_y - b) / m)
                     new_lines.append([start_x, start_y, end_x, end_y])
@@ -81,7 +83,7 @@ if __name__ == '__main__':
                     # else:
                         # cv2.line(image, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
 
-        x=np.linspace(0, 1580, 1580)
+        # x=np.linspace(0, width + (idx_gap * 2), width + (idx_gap * 2))
 
         sum_count_100 = []
         while True:
@@ -91,14 +93,14 @@ if __name__ == '__main__':
             if idx - 100 < 0:
                 idx_low = 0
             else:
-                idx_low = idx - 20
+                idx_low = idx - histo_gap
             if idx + 100 >= 1580:
                 idx_up = 1580
             else:
-                idx_up = idx + 20
+                idx_up = idx + histo_gap
             if sum(hist[idx_low:idx_up]) < 4:
                 break
-            value = [sum(hist[idx_low:idx_up]), idx_low - 250, idx_up - 250, idx]
+            value = [sum(hist[idx_low:idx_up]), idx_low - idx_gap, idx_up - idx_gap, idx - idx_gap]
 
             zeros = []
             for i in range(idx_low, idx_up):
@@ -113,40 +115,83 @@ if __name__ == '__main__':
         second_y1 = []
         second_x2 = []
         second_y2 = []
+        first_avg = []
+        second_avg = []
         if len(sum_count_100) == 0:
-            # cv2.imshow('origin', image)
-            continue
+            pass
         elif len(sum_count_100) == 1:
-            # cv2.imshow('origin', image)
-            continue
-        else:
-            if sum_count_100[0][0] > sum_count_100[1][0] * 3:
-                # cv2.imshow('origin', image)
-                continue
             for line in new_lines:
                 x1, y1, x2, y2 = line
                 if sum_count_100[0][1] < x1 < sum_count_100[0][2]:
                     cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    first_x1.append(x1)
-                    first_y1.append(y1)
-                    first_x2.append(x2)
-                    first_y2.append(y2)
-                elif sum_count_100[1][1] < x1 < sum_count_100[1][2]:
-                    cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                    second_x1.append(x1)
-                    second_y1.append(y1)
-                    second_x2.append(x2)
-                    second_y2.append(y2)
-                else:
-                    continue
-        x1 = int((np.mean(first_x1) + np.mean(second_x1)) / 2)
-        y1 = int((np.mean(first_y1) + np.mean(second_y1)) / 2)
-        x2 = int((np.mean(first_x2) + np.mean(second_x2)) / 2)
-        y2 = int((np.mean(first_y2) + np.mean(second_y2)) / 2)
-        cv2.line(image, (x1, y1), (x2, y2), (255, 255, 200), 2)
+                    if x1 == sum_count_100[0][3]:
+                        first_avg.append(x2)
+            for line in new_lines:
+                x1, y1, x2, y2 = line
+                if sum_count_100[0][1] < x1 < sum_count_100[0][2]:
+                    cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    if np.mean(first_avg) - histo_gap + 20 < x2 < np.mean(first_avg) + histo_gap - 20:
+                        first_x1.append(x1)
+                        first_y1.append(y1)
+                        first_x2.append(x2)
+                        first_y2.append(y2)
+        else:
+            if sum_count_100[0][0] > sum_count_100[1][0] * 3:
+                pass
+            else:
+                for line in new_lines:
+                    x1, y1, x2, y2 = line
+                    if sum_count_100[0][1] < x1 < sum_count_100[0][2]:
+                        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                        if x1 == sum_count_100[0][3]:
+                            first_avg.append(x2)
+                    elif sum_count_100[1][1] < x1 < sum_count_100[1][2]:
+                        cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                        if x1 == sum_count_100[1][3]:
+                            second_avg.append(x2)
+                    else:
+                        pass
+                # print(first_avg)
+                # print(second_avg)
+                for line in new_lines:
+                    x1, y1, x2, y2 = line
+                    if sum_count_100[0][1] < x1 < sum_count_100[0][2]:
+                        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                        if np.mean(first_avg) - histo_gap + 20 < x2 < np.mean(first_avg) + histo_gap - 20:
+                            first_x1.append(x1)
+                            first_y1.append(y1)
+                            first_x2.append(x2)
+                            first_y2.append(y2)
+                    elif sum_count_100[1][1] < x1 < sum_count_100[1][2]:
+                        cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                        if np.mean(second_avg) - histo_gap + 20 < x2 < np.mean(second_avg) + histo_gap - 20:
+                            second_x1.append(x1)
+                            second_y1.append(y1)
+                            second_x2.append(x2)
+                            second_y2.append(y2)
+                    else:
+                        pass
+        if first_x1 != [] and second_x1 != []:
+            x1 = int((np.mean(first_x1) + np.mean(second_x1)) / 2)
+            y1 = int((np.mean(first_y1) + np.mean(second_y1)) / 2)
+            x2 = int((np.mean(first_x2) + np.mean(second_x2)) / 2)
+            y2 = int((np.mean(first_y2) + np.mean(second_y2)) / 2)
+            cv2.line(image, (x1, y1), (x2, y2), (255, 255, 200), 2)
+        elif first_x1 != [] and second_x1 ==[]:
+            x1 = int((np.mean(first_x1)))
+            y1 = int((np.mean(first_y1)))
+            x2 = int((np.mean(first_x2)))
+            y2 = int((np.mean(first_y2)))
+            if x1 < width // 2:
+                x1 += 350
+                x2 += 80
+            else:
+                x1 -= 350
+                x2 -= 80
+            cv2.line(image, (x1, y1), (x2, y2), (255, 255, 200), 2)
         cv2.imshow('origin', image)
         cv2.waitKey(1)
         # plt.plot(x, np.array(hist))
-        # plt.show()
+        plt.show()
     cap.release()
     cv2.destroyAllWindows()
