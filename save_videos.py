@@ -8,7 +8,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
 # 컬러 영상 저장시
-writer = cv2.VideoWriter('output.avi', fourcc, 30.0, (width, height))
+writer = cv2.VideoWriter('output_test.avi', fourcc, 30.0, (width, height))
 # 그레이스케일 영상 저장시
 # writer = cv2.VideoWriter('output.avi', fourcc, 30.0, (width, height), 0)
 
