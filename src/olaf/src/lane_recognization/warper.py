@@ -4,24 +4,28 @@ import numpy as np
 
 class Warper:
     def __init__(self):
-        h = 720
-        w = 1280
+        self.h = 720
+        self.w = 1280
+        self.mapping_h = 360
+        self.mapping_w = 640
 
-        print("h : " ,h)
-        print("w : " ,w)
+        print("input_w : " ,self.w)
+        print("input_h : " ,self.h)
+        print("output_w : " ,self.mapping_w)
+        print("output_h : " ,self.mapping_h)
          
         # distort scr to dst
         src = np.float32([
-            [0, h],
-            [w, h],
-            [w//2 - 290, 200],
-            [w//2 + 310, 200],
+            [0, self.h],
+            [self.w, self.h],
+            [self.w//2 - 290, 200],
+            [self.w//2 + 310, 200],
         ])
         dst = np.float32([
-            [0, h],
-            [w, h],
+            [0, self.mapping_h],
+            [self.mapping_w, self.mapping_h],
             [0, 0],
-            [w , 0],
+            [self.mapping_w , 0],
         ])
         
 
@@ -32,7 +36,7 @@ class Warper:
         return cv2.warpPerspective(
             img,
             self.M,
-            (img.shape[1], img.shape[0]),
+            (self.mapping_w, self.mapping_h),
             flags=cv2.INTER_LINEAR
         )
 
@@ -40,6 +44,6 @@ class Warper:
         return cv2.warpPersective(
             img,
             self.Minv,
-            (img.shape[1], img.shape[0]),
+            (self.w, self.h),
             flags=cv2.INTER_LINEAR
         )

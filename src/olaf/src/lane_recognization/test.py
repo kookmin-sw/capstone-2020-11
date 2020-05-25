@@ -8,8 +8,11 @@ from sensor_msgs.msg import Image
 from sensor_msgs.msg import CompressedImage
 from slidewindow import SlideWindow
 from warper import Warper
+from datetime import datetime
+import time
 
 cv_image = None
+now = datetime.now()
 
 class Raw_Image():
     def __init__(self):
@@ -20,9 +23,9 @@ class Raw_Image():
         self.slidewindow  = SlideWindow()
 
         if self.selecting_sub_image == "compressed":
-            self._sub = rospy.Subscriber('/usb_cam/image_raw/compressed', CompressedImage, self.callback, queue_size=1)
+            self._sub = rospy.Subscriber('/usb_cam1/image_raw/compressed', CompressedImage, self.callback, queue_size=1)
         else:
-            self._sub = rospy.Subscriber('/usb_cam/image_raw', Image, self.callback, queue_size=1)
+            self._sub = rospy.Subscriber('/usb_cam1/image_raw', Image, self.callback, queue_size=1)
         self.bridge = CvBridge()
     
     def callback(self, image_msg):
@@ -36,15 +39,17 @@ class Raw_Image():
         
     def main(self):
         global cv_image
+        global now
         
         rospy.sleep(3)
         bride = CvBridge()
 
-        #out2 = cv2.VideoWriter('/home/nvidia/Desktop/video/original {}-{}-{} {}-{}.avi'.format(now.year, now.month, now.day, now.hour, now.minute), cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1280,720))
+        #out = cv2.VideoWriter('/home/nvidia/Desktop {}-{}-{} {}-{}.avi'.format(now.year, now.month, now.day, now.hour, now.minute), cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1280,720))
 
         while not rospy.is_shutdown():
-            print(cv_image.shape)
+            #print(cv_image.shape)
             img, x_location = self.process_image(cv_image)
+            #out.write(cv_image)
             cv2.imshow('result', img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -56,7 +61,6 @@ class Raw_Image():
         finally:
             print('Finally')
             #out.release()
-            #out2.release()
             cv2.destroyAllWindows() 
         
 
@@ -68,9 +72,10 @@ class Raw_Image():
         kernel_size = 5
         blur_gray = cv2.GaussianBlur(gray,(kernel_size, kernel_size), 0)
         # canny edge
-        low_threshold = 60#60
-        high_threshold = 70# 70
-        edges_img = cv2.Canny(np.uint8(blur_gray), low_threshold, high_threshold)
+        edges_img = cv2.Sobel(blur_gray, cv2.CV_8U, 1, 0, 3)
+        cv2.imshow('edge1', edges_img)
+        ret, edges_img = cv2.threshold(edges_img, 33, 255, cv2.THRESH_BINARY)
+        cv2.imshow('edge', edges_img)
         # warper
         img = self.warper.warp(edges_img)
         img1, x_location = self.slidewindow.slidewindow(img)
