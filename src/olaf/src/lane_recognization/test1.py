@@ -65,7 +65,8 @@ class Raw_Image():
         
 
     def process_image(self,frame):
-    
+        hist = []
+        #for i in range(0,)
         # grayscle
         gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         # blur
