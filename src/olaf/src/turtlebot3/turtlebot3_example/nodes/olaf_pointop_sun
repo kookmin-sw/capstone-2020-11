@@ -1,0 +1,278 @@
+#!/usr/bin/env python
+
+import rospy
+from geometry_msgs.msg import Twist, Point, Quaternion
+import tf
+from math import radians, copysign, sqrt, pow, pi, atan2
+from tf.transformations import euler_from_quaternion
+import numpy as np
+import signal
+import sys
+
+MAX_LIN_VEL = 0
+CUR_LIN_VEL = 0
+BURGER_MAX_ANG_VEL = 1.5
+ANG_VEL_STEP_SIZE = 0.1
+
+last_target_angle = 0
+
+LAST_TARGET_POINT_X = 0
+LAST_TARGET_POINT_Y = 0
+
+class GotoPoint():
+    def __init__(self, path_list):
+        global LAST_TARGET_POINT_X
+        global LAST_TARGET_POINT_Y
+        rospy.init_node('olaf_pointop', anonymous=False)
+        rospy.on_shutdown(self.shutdown)
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+
+        position = Point()
+        move_cmd = Twist()
+
+        self.rate = rospy.Rate(10)
+        self.tf_listener = tf.TransformListener()
+        self.odom_frame = 'odom'
+
+        self.TF_LISTEN()
+        
+        (goal_x, goal_y) = (path_list[0], path_list[1])
+        
+        self.rotate_before_move(goal_x, goal_y)
+        self.move(goal_x, goal_y)
+        
+        LAST_TARGET_POINT_X = goal_x
+        LAST_TARGET_POINT_Y = goal_y
+
+    def rotate_before_move(self, target_x, target_y):
+    
+        global last_target_angle
+
+        (position, rotation) = self.get_odom()
+        (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
+
+        turn_cmd = Twist()
+        turn_cmd.linear.x = 0.0
+
+        (x_diff, y_diff) = (int(x_diff), int(y_diff))
+
+        target_angle = 0.0
+
+        if x_diff > 0:
+            xy_flag = 0
+            pass
+
+        elif x_diff < 0:
+            if last_target_angle < 0:
+                target_angle = -180
+            else:
+                target_angle = 180
+
+        elif y_diff > 0:
+            target_angle = 90
+
+        elif y_diff < 0:
+            target_angle = -90
+
+        else:
+            print("Wrong path operation.")
+            self.shutdown()
+            
+        last_target_angle = target_angle
+
+        target_angle = np.deg2rad(target_angle)
+        print("x_diff :" + str(x_diff))
+        print("y_diff :" + str(y_diff))
+        print("target_angle :" + str(target_angle))
+
+        while abs(rotation - target_angle) > 0.05:
+
+            (position, rotation) = self.get_odom()
+            if target_angle > 0:
+                if rotation <= target_angle and rotation >= target_angle - pi:
+                    turn_cmd.angular.z = 0.5
+                else:
+                    turn_cmd.angular.z = -0.5
+            else:
+                if rotation <= target_angle + pi and rotation > target_angle:
+                    turn_cmd.angular.z = -0.5
+                else:
+                    turn_cmd.angular.z = 0.5
+
+            self.cmd_vel.publish(turn_cmd)
+            self.rate.sleep()
+
+        rospy.loginfo("Stopping the robot...")
+
+    def move(self, target_x, target_y):
+        global MAX_LIN_VEL
+        global LAST_TARGET_POINT_X
+        global LAST_TARGET_POINT_Y
+       
+        move_cmd = Twist()
+        (position, rotation) = self.get_odom()
+        last_rotation = 0.0
+        
+        print("target_x : ", target_x)
+        print("target_y : ", target_y)
+        #distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+        if target_x != LAST_TARGET_POINT_X:
+            distance = sqrt(pow(target_x - position.x,2))
+        elif target_y != LAST_TARGET_POINT_Y:
+            distance = sqrt(pow(target_y - position.y,2))
+
+        while distance > 0.05:
+            (position, rotation) = self.get_odom()
+            x_start = position.x
+            y_start = position.y
+            
+            path_angle = atan2(target_y - y_start, target_x - x_start)
+            
+            if path_angle > pi-0.1 and rotation <= 0:
+                rotation = 2*pi + rotation
+            elif path_angle < -pi+0.1 and rotation > 0:
+                rotation = -2*pi + rotation
+                
+            print("last_rotation: " + str(last_rotation))
+                
+            move_cmd.angular.z = path_angle - rotation
+            
+            if target_x != LAST_TARGET_POINT_X:
+                distance = sqrt(pow(target_x - position.x,2))
+            elif target_y != LAST_TARGET_POINT_Y:
+                distance = sqrt(pow(target_y - position.y,2))
+            #distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+            if MAX_LIN_VEL < 1.0:
+                MAX_LIN_VEL+=0.001
+            move_cmd.linear.x = min(distance, MAX_LIN_VEL)
+            print("distance : ", distance)
+            
+            #if move_cmd.angular.z > 0 and abs(path_angle-last_rotation) > 0.1:
+                #move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
+                #move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
+            #elif move_cmd.angular.z < 0 and abs(path_angle-last_rotation) > 0.1:
+                #move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
+                #move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
+                
+            print("path_angle: " + str(path_angle))
+            print("diff : ", abs(path_angle - rotation))
+
+            last_rotation = rotation
+            self.cmd_vel.publish(move_cmd)
+            self.rate.sleep()
+        MAX_LIN_VEL = 0
+
+    def TF_LISTEN(self):
+        try:
+            self.tf_listener.waitForTransform(self.odom_frame, 'base_footprint', rospy.Time(), rospy.Duration(1.0))
+            self.base_frame = 'base_footprint'
+        except (tf.Exception, tf.ConnectivityException, tf.LookupException):
+            try:
+                self.tf_listener.waitForTransform(self.odom_frame, 'base_link', rospy.Time(), rospy.Duration(1.0))
+                self.base_frame = 'base_link'
+            except (tf.Exception, tf.ConnectivityException, tf.LookupException):
+                rospy.loginfo("Cannot find transform between odom and base_link or base_footprint")
+                rospy.signal_shutdown("tf Exception")
+
+    def get_odom(self):
+        try:
+            (trans, rot) = self.tf_listener.lookupTransform(self.odom_frame, self.base_frame, rospy.Time(0))
+            rotation = euler_from_quaternion(rot)
+
+        except (tf.Exception, tf.ConnectivityException, tf.LookupException):
+            rospy.loginfo("TF Exception")
+            return
+
+        return (Point(*trans), rotation[2])
+
+    def shutdown(self):
+        self.cmd_vel.publish(Twist())
+        rospy.sleep(1)
+
+def handler(signum, f):
+    print signum
+    sys.exit()
+
+def path_calc(start_x, start_y, target_x, target_y):
+    arrived = False
+    topic_list = list()
+    control_topic = np.array([0,0,0])
+    start_z = 0
+    current_x = start_x
+    current_y = start_y
+    current_z = 0
+    point_z = 0
+    while(1):
+        if not arrived:
+            if target_x != current_x:
+                print("target_x != current_x")
+                control_topic[0] = target_x - current_x
+                if target_y - start_y < 0:
+                    control_topic[2] = -90
+                    current_z = -90
+                    point_z = -90
+                elif target_y - start_y > 0:
+                    control_topic[2] = 90
+                    current_z = 90
+                    point_z = 90
+                    tmp_control = np.array(control_topic)
+                    topic_list.append(tmp_control)
+                    current_x = control_topic[0]
+                    current_y = control_topic[1]
+                    current_z = control_topic[2]
+            elif target_x == current_x and target_y != current_y:
+                print("target_x == current_x and target_y != current_y")
+                control_topic[1] = target_y - start_y
+                tmp_control = np.array(control_topic)
+                topic_list.append(tmp_control)
+                current_x = control_topic[0]
+                current_y = control_topic[1]
+                current_z = control_topic[2]
+            elif current_x == target_x and target_y == current_y:
+                print("arrived")
+                arrived = True
+        else:
+            print("arrived else")
+            if current_x == target_x and current_y == target_y and current_z == point_z:
+                control_topic[2] = -current_z
+                tmp_control = np.array(control_topic)
+                current_z = -current_z
+                #topic_list.append(tmp_control)
+            elif current_x == target_x and current_y == target_y and current_z == -point_z:
+                control_topic = np.array(topic_list[0])
+                if current_z > 0:
+                    control_topic[2] = -180
+                else:
+                    control_topic[2] = 180
+                tmp_control = np.array(control_topic)
+                current_x = tmp_control[0]
+                current_y = tmp_control[1]
+                current_z = tmp_control[2]
+                topic_list.append(tmp_control)
+            elif current_y == start_y and current_x != start_x:
+                control_topic = np.array([start_x,start_y,current_z])
+                topic_list.append(control_topic)
+                current_x = control_topic[0]
+                current_y = control_topic[1]
+                current_z = 0
+                topic_list.append(np.array([start_x, start_y, 0]))
+                return topic_list
+
+if __name__ == '__main__':
+
+    path_lists = path_calc(0, 0, 2, 2)
+    print("++++++++++++")
+    print("path_lists")
+    for p in path_lists:
+        print(p)
+    print("++++++++++++")
+    count = 0
+
+    signal.signal(signal.SIGINT, handler)
+
+    while not rospy.is_shutdown():
+    
+        GotoPoint(path_lists[count])
+        count += 1
+        if count > len(path_lists):
+            break
