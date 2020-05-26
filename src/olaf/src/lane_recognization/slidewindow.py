@@ -10,6 +10,45 @@ class SlideWindow:
         self.right_fit = None
         self.leftx = None
         self.rightx = None
+        self.w = 640
+        self.h = 360
+        self.histo_gap = 50
+        self.count_threshold = 5
+
+    def use_histo_point(self, img):
+        # for image make
+        ret = np.zeros_like(img)
+
+        # create width array
+        hist = list(np.zeros(self.w))
+        
+        # height searching
+        #for i in range(self.w):
+        #    for j in range(self.h):
+        #        tp = img[j,i]
+        #        if tp == 255:
+        #            hist[i] += 1
+        for i in range(self.w):
+            count = 0
+            tmp = np.array(img[:,i])
+            hist[i] = np.count_nonzero(tmp)
+        
+        # create sub list
+        hist1_max = max(hist[0:self.w//2])
+        hist2_max = max(hist[self.w//2:self.w])
+
+        idx1 = hist[0:self.w//2].index(hist1_max)
+        idx2 = hist[self.w//2:self.w].index(hist2_max)
+        
+        return_lane = [-1, -1]
+        
+        if hist1_max > self.count_threshold:
+            return_lane[0] = idx1
+        if hist2_max > self.count_threshold:
+            return_lane[1] = idx2 + self.w//2
+        
+        #print(return_lane)
+        return return_lane
 
     def slidewindow(self, img):
 
@@ -26,9 +65,11 @@ class SlideWindow:
         
         # find nonzero location in img, nonzerox, nonzeroy is the array flatted one dimension by x,y 
         nonzero = img.nonzero()
-        #print nonzero 
+        #print nonzero
+        #lanes = self.use_histo_point(img)
         nonzeroy = np.array(nonzero[0])
         nonzerox = np.array(nonzero[1])
+        
         #print nonzerox
         # init data need to sliding windows
         margin = 20
