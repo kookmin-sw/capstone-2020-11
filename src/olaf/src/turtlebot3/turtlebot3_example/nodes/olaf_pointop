@@ -1,11 +1,13 @@
+#!/usr/bin/env python
+
 import rospy
-from sensor_msgs.msg import JointState
-from turtlebot3_msgs.msg import SensorState
 from geometry_msgs.msg import Twist, Point, Quaternion
 import tf
 from math import radians, copysign, sqrt, pow, pi, atan2
 from tf.transformations import euler_from_quaternion
 import numpy as np
+import signal
+import sys
 
 BURGER_MAX_LIN_VEL = 0.22
 BURGER_MAX_ANG_VEL = 1.5
@@ -17,8 +19,6 @@ class GotoPoint():
         rospy.init_node('olaf_pointop', anonymous=False)
         rospy.on_shutdown(self.shutdown)
         self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
-        rospy.Subscriber('sensor_state', SensorState, self.sensor_callback)
-        rospy.Subscriber('joint_states', JointState, self.joint_callback)
 
         position = Point()
         move_cmd = Twist()
@@ -39,7 +39,7 @@ class GotoPoint():
         xy_flag = self.rotate_before_move(goal_x, goal_y)
         self.move(xy_flag, goal_x, goal_y)
 
-    def rotate_before_move(target_x, target_y):
+    def rotate_before_move(self, target_x, target_y):
 
         (position, rotation) = self.get_odom()
         (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
@@ -71,7 +71,7 @@ class GotoPoint():
 
         target_angle = np.deg2rad(target_angle)
 
-        while abs(rotation - target_angle) > 0.03:
+        while abs(rotation - target_angle) > 0.05:
 
             (position, rotation) = self.get_odom()
             if target_angle > 0:
@@ -85,12 +85,13 @@ class GotoPoint():
                 else:
                     turn_cmd.angular.z = 0.5
 
-            self.cmd_vel.publish(move_cmd)
+            self.cmd_vel.publish(turn_cmd)
             self.rate.sleep()
 
+        rospy.loginfo("Stopping the robot...")
         return xy_flag
 
-    def move(xy_flag, target_x, target_y):
+    def move(self, xy_flag, target_x, target_y):
 
         move_cmd = Twist()
         (position, rotation) = self.get_odom()
@@ -115,13 +116,13 @@ class GotoPoint():
             self.cmd_vel.publish(move_cmd)
             self.rate.sleep()
 
-    def TF_LISTEN():
+    def TF_LISTEN(self):
         try:
             self.tf_listener.waitForTransform(self.odom_frame, 'base_footprint', rospy.Time(), rospy.Duration(1.0))
             self.base_frame = 'base_footprint'
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
             try:
-                self.tf_listener.waitForTransform(self.odom_frame, 'base_link', rospy.Time(), rospy.Duration())
+                self.tf_listener.waitForTransform(self.odom_frame, 'base_link', rospy.Time(), rospy.Duration(1.0))
                 self.base_frame = 'base_link'
             except (tf.Exception, tf.ConnectivityException, tf.LookupException):
                 rospy.loginfo("Cannot find transform between odom and base_link or base_footprint")
@@ -141,6 +142,10 @@ class GotoPoint():
     def shutdown(self):
         self.cmd_vel.publish(Twist())
         rospy.sleep(1)
+
+def handler(signum, f):
+    print signum
+    sys.exit()
 
 def path_calc(start_x, start_y, target_x, target_y):
     arrived = False
@@ -208,12 +213,25 @@ def path_calc(start_x, start_y, target_x, target_y):
                 return topic_list
 
 if __name__ == '__main__':
+
+    path_lists = path_calc(0, 0, 2, 2)
+    count = 0
+
+    signal.signal(signal.SIGINT, handler)
+
+    while not rospy.is_shutdown():
+    
+        GotoPoint(path_lists[count])
+        count += 1
+        if count > len(path_lists):
+            break
+
+'''
     try:
         path_lists = path_calc(0, 0, 5, 2)
         count = 0
 
         while not rospy.is_shutdown():
-            print(msg)
             GotoPoint(path_lists[count])
             count += 1
             if count > len(path_lists):
@@ -221,3 +239,5 @@ if __name__ == '__main__':
 
     except:
         rospy.loginfo("shutdown program")
+        
+        '''
