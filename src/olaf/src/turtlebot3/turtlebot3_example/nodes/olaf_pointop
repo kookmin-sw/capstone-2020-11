@@ -29,15 +29,10 @@ class GotoPoint():
 
         self.TF_LISTEN()
 
-        (position, rotation) = self.get_odom()
-        last_rotation = 0
-        linear_speed = 1
-        angular_speed = 1
-
         (goal_x, goal_y) = (path_list[0], path_list[1])
 
-        xy_flag = self.rotate_before_move(goal_x, goal_y)
-        self.move(xy_flag, goal_x, goal_y)
+        self.rotate_before_move(goal_x, goal_y)
+        self.move(goal_x, goal_y)
 
     def rotate_before_move(self, target_x, target_y):
 
@@ -46,6 +41,8 @@ class GotoPoint():
 
         turn_cmd = Twist()
         turn_cmd.linear.x = 0.0
+
+        (x_diff, y_diff) = (int(x_diff), int(y_diff))
 
         target_angle = 0.0
 
@@ -70,6 +67,9 @@ class GotoPoint():
             self.shutdown()
 
         target_angle = np.deg2rad(target_angle)
+        print("x_diff :" + str(x_diff))
+        print("y_diff :" + str(y_diff))
+        print("target_angle :" + str(target_angle))
 
         while abs(rotation - target_angle) > 0.05:
 
@@ -91,10 +91,11 @@ class GotoPoint():
         rospy.loginfo("Stopping the robot...")
         return xy_flag
 
-    def move(self, xy_flag, target_x, target_y):
+    def move(self, target_x, target_y):
 
         move_cmd = Twist()
         (position, rotation) = self.get_odom()
+        last_rotation = 0.0
         distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
 
         while distance > 0.05:
@@ -102,17 +103,18 @@ class GotoPoint():
             x_start = position.x
             y_start = position.y
             path_angle = atan2(target_y - y_start, target_x - x_start)
-
-            distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
-
+                
             move_cmd.angular.z = path_angle - rotation
+            distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+            move_cmd.linear.x = min(distance, 0.18)
+            
             if move_cmd.angular.z > 0:
                 move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
             else:
-                move_cmd.angular.z = min(move_cmd.angular.z, -1.5)
+                move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
+            print("path_angle: " + str(path_angle))
 
-            move_cmd.linear.x = min(distance, 0.18)
-
+            last_rotation = rotation
             self.cmd_vel.publish(move_cmd)
             self.rate.sleep()
 
@@ -215,6 +217,11 @@ def path_calc(start_x, start_y, target_x, target_y):
 if __name__ == '__main__':
 
     path_lists = path_calc(0, 0, 2, 2)
+    print("++++++++++++")
+    print("path_lists")
+    for p in path_lists:
+        print(p)
+    print("++++++++++++")
     count = 0
 
     signal.signal(signal.SIGINT, handler)
@@ -225,19 +232,3 @@ if __name__ == '__main__':
         count += 1
         if count > len(path_lists):
             break
-
-'''
-    try:
-        path_lists = path_calc(0, 0, 5, 2)
-        count = 0
-
-        while not rospy.is_shutdown():
-            GotoPoint(path_lists[count])
-            count += 1
-            if count > len(path_lists):
-                break
-
-    except:
-        rospy.loginfo("shutdown program")
-        
-        '''
