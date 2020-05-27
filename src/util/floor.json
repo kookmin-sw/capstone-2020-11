@@ -1,0 +1,313 @@
+{
+  "running": {
+    "isRunning": 0
+  },
+  "floorList": [
+    "4",
+    "6",
+    "7"
+  ],
+  "floorData": {
+    "4": [
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "445호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 125.456,
+        "y": 362.182,
+        "name": "446호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 198.352,
+        "y": 391.438,
+        "name": "447호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 123.456,
+        "y": 100.2,
+        "name": "422호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 126.546,
+        "y": 110.928,
+        "name": "424호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 123.456,
+        "y": 100.2,
+        "name": "공통전산실",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 123.456,
+        "y": 100.2,
+        "name": "무한상상실",
+        "icon": "laptop-outline"
+      }
+    ],
+    "6": [
+      {
+        "x": 165.366,
+        "y": 462.363,
+        "name": "629호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 165.366,
+        "y": 462.363,
+        "name": "611호",
+        "icon": "book-outline"
+      },
+      {
+        "x": 165.366,
+        "y": 462.363,
+        "name": "소프트웨어 학부 사무실",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 262.366,
+        "y": 363.335,
+        "name": "G-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "T-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "P-Lab",
+        "icon": "laptop-outline"
+      }
+    ],
+    "7": [
+      {
+        "x": 234.456,
+        "y": 152.582,
+        "name": "중앙 엘레베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "x": 782.366,
+        "y": 272.272,
+        "name": "K-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "x": 262.366,
+        "y": 363.335,
+        "name": "M-Lab",
+        "icon": "laptop-outline"
+      }
+    ]
+  },
+  "floorData2": [
+    {
+      "id": 0,
+      "data": []
+    },
+    {
+      "id": 1,
+      "data": []
+    },
+    {
+      "id": 2,
+      "data": []
+    },
+    {
+      "id": 3,
+      "data": []
+    },
+    {
+      "id": 4,
+      "data": [
+        {
+          "x": 234.456,
+          "y": 152.582,
+          "name": "445호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 125.456,
+          "y": 362.182,
+          "name": "446호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 198.352,
+          "y": 391.438,
+          "name": "447호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 123.456,
+          "y": 100.2,
+          "name": "422호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 126.546,
+          "y": 110.928,
+          "name": "424호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 234.456,
+          "y": 152.582,
+          "name": "중앙 엘레베이터",
+          "icon": "arrow-forward-circle-outline"
+        },
+        {
+          "x": 123.456,
+          "y": 100.2,
+          "name": "공통전산실",
+          "icon": "laptop-outline"
+        },
+        {
+          "x": 123.456,
+          "y": 100.2,
+          "name": "무한상상실",
+          "icon": "laptop-outline"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "data": []
+    },
+    {
+      "id": 6,
+      "data": [
+        {
+          "x": 165.366,
+          "y": 462.363,
+          "name": "629호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 165.366,
+          "y": 462.363,
+          "name": "611호",
+          "icon": "book-outline"
+        },
+        {
+          "x": 165.366,
+          "y": 462.363,
+          "name": "소프트웨어 학부 사무실",
+          "icon": "laptop-outline"
+        },
+        {
+          "x": 234.456,
+          "y": 152.582,
+          "name": "중앙 엘레베이터",
+          "icon": "arrow-forward-circle-outline"
+        },
+        {
+          "x": 262.366,
+          "y": 363.335,
+          "name": "G-Lab",
+          "icon": "laptop-outline"
+        },
+        {
+          "x": 782.366,
+          "y": 272.272,
+          "name": "T-Lab",
+          "icon": "laptop-outline"
+        },
+        {
+          "x": 782.366,
+          "y": 272.272,
+          "name": "P-Lab",
+          "icon": "laptop-outline"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "data": [
+        {
+          "x": 234.456,
+          "y": 152.582,
+          "name": "중앙 엘레베이터",
+          "icon": "arrow-forward-circle-outline"
+        },
+        {
+          "x": 782.366,
+          "y": 272.272,
+          "name": "K-Lab",
+          "icon": "laptop-outline"
+        },
+        {
+          "x": 262.366,
+          "y": 363.335,
+          "name": "M-Lab",
+          "icon": "laptop-outline"
+        }
+      ]
+    }
+  ],
+  "testJsonData": [
+    {
+      "test_ionic": "change!!!",
+      "id": 1
+    },
+    {
+      "id": 2,
+      "name": "Timmothy Lueilwitz",
+      "age": "15",
+      "address": "37137 Abbigail Lock"
+    },
+    {
+      "name": "Test Put",
+      "age": "0",
+      "address": "This is Test Put Method",
+      "id": 3
+    },
+    {
+      "id": 4,
+      "name": "Harley Cremin",
+      "age": "17",
+      "address": "14855 Cathy Square"
+    },
+    {
+      "name": "Test Post",
+      "age": "28",
+      "address": "This is Test",
+      "id": 6
+    },
+    {
+      "name": "Test Put",
+      "age": "0",
+      "address": "This is Test Put Method",
+      "id": 7
+    },
+    {
+      "name": "Test Post33333333",
+      "age": "28",
+      "address": "This is Test333333",
+      "id": 8
+    }
+  ]
+}
