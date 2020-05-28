@@ -15,6 +15,7 @@
 
 - [Youtube](https://youtu.be/V9RMH4tUaUQ/) 계획서발표
 - [Youtube](https://youtu.be/tdBFq6ZRJdE/) 중간보고서
+- [Youtube](https://youtu.be/EMOXelOuhhg) 2차 중간 시연 영상
   
 ## 4. 팀 소개
 
