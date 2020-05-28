@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { ApiService } from '../service/ApiService';
 
 @Component({
   selector: 'app-tab2',
@@ -10,23 +11,28 @@ import { AlertController } from '@ionic/angular';
 })
 export class ListPage {
 
-  floorList: any;
-  floorNum: string;
-  floorData: any;
+  private floorList: any;
+  private floorNum: string;
+  private floorData: any;
   private totalData: any;
+
+  private isRunning: number;
+  private interval: any;
 
   constructor(public actionSheetController: ActionSheetController,
               public route: ActivatedRoute,
-              public alertController: AlertController) {
+              public alertController: AlertController,
+              public apiService: ApiService) {
     this.floorNum = route.snapshot.params.floorNum;
     if (this.floorNum == null || this.floorNum === undefined) {
       this.floorNum = '4';
     }
+    this.isRunning = 1;
     this.readData();
   }
 
   alert(idx: number, msg: string) {
-    if (idx % 2) {
+    if (this.isRunning === 1) {
       this.presentAlert();
     } else {
       this.presentConfirm(msg, '해당 장소로 이동하시겠습니까?');
@@ -36,12 +42,23 @@ export class ListPage {
 
   readData() {
     console.log('read_data');
-    fetch('assets/data/floor.json').then(res => res.json())
-        .then(json => {
-          this.floorList = json.floorList;
-          this.totalData = json.floorData;
-          this.floorData = this.totalData[this.floorNum];
-        });
+    this.apiService.getFloorList().subscribe((floorList) => {
+      console.log('json server floorList', floorList);
+      this.floorList = floorList;
+      this.apiService.getFloorData().subscribe((floorData) => {
+        console.log('json server floorData', floorData);
+        this.totalData = floorData;
+        this.floorData = this.totalData[this.floorNum];
+      });
+    });
+
+    this.apiService.getRunning().subscribe((data) => {
+      console.log('json server running', data);
+      this.isRunning = data.isRunning;
+      if (this.isRunning === 1) {
+        this.timer();
+      }
+    });
   }
 
   testScrollTop() {
@@ -110,11 +127,33 @@ export class ListPage {
           text: '확인',
           handler: () => {
             console.log('confirm ok click');
+            this.isRunning = 1;
+            this.apiService.updateRunning(head).subscribe((d) => {
+              this.timer();
+            });
           }
         }
       ]
     });
 
     await alert.present();
+  }
+
+  private timer() {
+    this.interval = setInterval(() => {
+      this.apiService.getRunning().subscribe((data) => {
+        console.log('interval get json server running data');
+        if (this.isRunning === 0) {
+          clearInterval(this.interval);
+          return;
+        }
+
+        if (data.isRunning === 0) {
+          console.log('clear interval');
+          this.isRunning = 0;
+          clearInterval(this.interval);
+        }
+      });
+    }, 1000);
   }
 }
