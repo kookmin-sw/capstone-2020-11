@@ -111,7 +111,3 @@
     export OPENCR_MODEL=waffle
     sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
 ```
-<<<<<<< HEAD
-=======
-
->>>>>>> ef1de16712da9a3d23187c8945489e4c098c1dfa
