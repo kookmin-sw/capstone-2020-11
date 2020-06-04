@@ -13,6 +13,8 @@ BURGER_MAX_LIN_VEL = 0.22
 BURGER_MAX_ANG_VEL = 1.5
 ANG_VEL_STEP_SIZE = 0.1
 
+last_target_angle = 0
+
 class GotoPoint():
     def __init__(self, path_list):
 
@@ -35,6 +37,8 @@ class GotoPoint():
         self.move(goal_x, goal_y)
 
     def rotate_before_move(self, target_x, target_y):
+    
+        global last_target_angle
 
         (position, rotation) = self.get_odom()
         (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
@@ -51,20 +55,22 @@ class GotoPoint():
             pass
 
         elif x_diff < 0:
-            xy_flag = 0
-            target_angle = 180
+            if last_target_angle < 0:
+                target_angle = -180
+            else:
+                target_angle = 180
 
         elif y_diff > 0:
-            xy_flag = 1
             target_angle = 90
 
         elif y_diff < 0:
-            xy_flag = 1
             target_angle = -90
 
         else:
             print("Wrong path operation.")
             self.shutdown()
+            
+        last_target_angle = target_angle
 
         target_angle = np.deg2rad(target_angle)
         print("x_diff :" + str(x_diff))
@@ -89,7 +95,6 @@ class GotoPoint():
             self.rate.sleep()
 
         rospy.loginfo("Stopping the robot...")
-        return xy_flag
 
     def move(self, target_x, target_y):
 
@@ -103,6 +108,13 @@ class GotoPoint():
             x_start = position.x
             y_start = position.y
             path_angle = atan2(target_y - y_start, target_x - x_start)
+            
+            if path_angle > pi-0.1 and rotation <= 0:
+                rotation = 2*pi + rotation
+            elif path_angle < -pi+0.1 and rotation > 0:
+                rotation = -2*pi + rotation
+                
+            print("last_rotation: " + str(last_rotation))
                 
             move_cmd.angular.z = path_angle - rotation
             distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
@@ -231,4 +243,5 @@ if __name__ == '__main__':
         GotoPoint(path_lists[count])
         count += 1
         if count > len(path_lists):
-            break
+            breakcount])
+ A!
