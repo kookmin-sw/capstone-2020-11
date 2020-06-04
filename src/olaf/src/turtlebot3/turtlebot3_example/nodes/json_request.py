@@ -20,7 +20,7 @@ class json_request():
     	
     def checkServer(self):
         data = requests.get(self.REQ_URL, headers=self.HEADER).json()
-        self.isRunning = int(data['isRunning'])
+        self.isRunning = data['isRunning']
         print(data)
     	
     def polling(self):
@@ -35,7 +35,7 @@ class json_request():
             
     def update(self, data):
     
-        inputData = '{"isRunning":"' + str(data) + '"}'
+        inputData = '{"isRunning":' + str(data) + '}'
         response = requests.put(self.REQ_URL, headers=self.HEADER, data=inputData)
         	
 def signal_handler(signum, f):
