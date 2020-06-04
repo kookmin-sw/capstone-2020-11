@@ -1,4 +1,5 @@
 import rospy
+import numpy as np
 from geometry_msgs.msg import Twist, Point, Quaternion
 import tf
 from math import radians, copysign, sqrt, pow, pi, atan2
@@ -22,7 +23,7 @@ class GotoPoint():
         global LAST_TARGET_POINT_X
         global LAST_TARGET_POINT_Y
         global g_lane_location
-        rospy.init_node('olaf_pointop', anonymous=False)
+        #rospy.init_node('olaf_pointop', anonymous=False)
         rospy.on_shutdown(self.shutdown)
         self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
 
@@ -220,7 +221,6 @@ class GotoPoint():
             return
 
         return (Point(*trans), rotation[2])
-        
 
     def shutdown(self):
         self.cmd_vel.publish(Twist())
