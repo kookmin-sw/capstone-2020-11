@@ -17,10 +17,23 @@ class json_request():
         self.REQ_URL = PREFIX + AWS_IP + POSTFIX
     	self.HEADER = {'Content-Type':'application/json'}
     	self.isRunning = 0
+    	self.goalState = ''
+    	
+    	self.pointList = {}
+    	self.pointList[u'445\ud638'] = (0, 0)
+    	self.pointList[u'446\ud638'] = (0, 0)
+    	self.pointList[u'447\ud638'] = (0, 0)
+    	self.pointList[u'422\ud638'] = (0, 0)
+    	self.pointList[u'424\ud638'] = (0, 0)
+    	self.pointList[u''] = (0, 0)
     	
     def checkServer(self):
         data = requests.get(self.REQ_URL, headers=self.HEADER).json()
         self.isRunning = data['isRunning']
+        try:
+            self.goalState = data['goalState']
+        except:
+            pass
         print(data)
     	
     def polling(self):
@@ -37,6 +50,10 @@ class json_request():
     
         inputData = '{"isRunning":' + str(data) + '}'
         response = requests.put(self.REQ_URL, headers=self.HEADER, data=inputData)
+        
+    def returnTargetPoint(self):
+        
+        return self.pointList[self.goalState]
         	
 def signal_handler(signum, f):
     sys.exit()
@@ -53,6 +70,7 @@ if __name__ == '__main__':
     
         print ""
         connectionObject.polling()
+        print(connectionObject.returnTargetPoint())
     
         print ""
     
