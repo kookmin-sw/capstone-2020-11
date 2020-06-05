@@ -9,6 +9,7 @@ import numpy as np
 import signal
 import sys
 from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 
 MAX_LIN_VEL = 0
 CUR_LIN_VEL = 0
@@ -21,6 +22,10 @@ LAST_TARGET_POINT_X = 0
 LAST_TARGET_POINT_Y = 0
 
 g_lane_location = 0 
+
+FRONT_DIST = 0.0
+RIGHT_DIST = 0.0
+LEFT_DIST = 0.0
 
 class GotoPoint():
     def __init__(self, path_list):
@@ -41,6 +46,9 @@ class GotoPoint():
         self.tf_listener = tf.TransformListener()
         self.odom_frame = 'odom'
         self.lane_location_sub = rospy.Subscriber("lane_data",Int32MultiArray,self.callback)
+        
+        #self.lidar_distance = rospy.Subscriber("from_lidar_to_avoid", Float32MultiArray, self.lidar_callback)
+        
         self.TF_LISTEN()
         
         (goal_x, goal_y) = (path_list[0], path_list[1])
@@ -54,12 +62,22 @@ class GotoPoint():
     def callback(self,msg):
         global g_lane_location
         g_lane_location = msg.data[0]
-        #print(self.lane_location)
+        
+    def lidar_callback(self, msg):
+        global FRONT_DIST, RIGHT_DIST, LEFT_DIST
+        FRONT_DIST, RIGHT_DIST, LEFT_DIST = msg.data
+        #print(FRONT_DIST, RIGHT_DIST, LEFT_DIST)
+        #print(msg.data)
+         
     
     def rotate_before_move(self, target_x, target_y):
-    
-        global last_target_angle
-
+        global last_target_angle, FRONT_DIST, RIGHT_DIST, LEFT_DIST
+        
+        
+        #print("front_dist : ", FRONT_DIST)
+        #print("right_dist : ", RIGHT_DIST)
+        #print("left_dist : ", LEFT_DIST)
+        
         (position, rotation) = self.get_odom()
         (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
 
@@ -70,7 +88,7 @@ class GotoPoint():
 
         target_angle = 0.0
 
-        if x_diff > 0:
+        if x_diff >= 0:
             xy_flag = 0
             pass
 
@@ -80,7 +98,7 @@ class GotoPoint():
             else:
                 target_angle = 180
 
-        elif y_diff > 0:
+        elif y_diff >= 0:
             target_angle = 90
 
         elif y_diff < 0:
@@ -113,7 +131,7 @@ class GotoPoint():
 
             self.cmd_vel.publish(turn_cmd)
             self.rate.sleep()
-
+        
         rospy.loginfo("Stopping the robot...")
 
     def move(self, target_x, target_y):
@@ -121,11 +139,19 @@ class GotoPoint():
         global LAST_TARGET_POINT_X
         global LAST_TARGET_POINT_Y
         global g_lane_location
+        global FRONT_DIST, LEFT_DIST, RIGHT_DIST
         
         lane_location = g_lane_location
         move_cmd = Twist()
         (position, rotation) = self.get_odom()
         last_rotation = 0.0
+        
+        
+        print("position : ", position)
+        
+        #print("front_dist : ", FRONT_DIST)
+        #print("right_dist : ", RIGHT_DIST)
+        #print("left_dist : ", LEFT_DIST)
         
         #print("target_x : ", target_x)
         #print("target_y : ", target_y)
@@ -136,18 +162,22 @@ class GotoPoint():
             distance = sqrt(pow(target_y - position.y,2))
         else:
             distance = 0
+            
 
         while distance > 0.05:
             (position, rotation) = self.get_odom()
+            
+            # CURRENT POSITION X,Y
             x_start = position.x
             y_start = position.y
             
-            print("lane_location : ", g_lane_location)
-            
+            # CURRENT POSITION -> TARGET POINT YAW VECTOR
             path_angle = atan2(target_y - y_start, target_x - x_start)
             
+            # 
             lane_diff = (330.0 - float(g_lane_location))
             
+            print("lane_location : ", g_lane_location)
             print("lane_diff : ", lane_diff)
             
             if path_angle > pi-0.1 and rotation <= 0:
@@ -201,6 +231,7 @@ class GotoPoint():
             last_rotation = rotation
             self.cmd_vel.publish(move_cmd)
             self.rate.sleep()
+            
         MAX_LIN_VEL = 0
 
     def TF_LISTEN(self):
@@ -315,13 +346,63 @@ if __name__ == '__main__':
     #path_lists.append([0,0,-90])
     #path_lists.append([0,0,-1])
     
-    # 447
+    # 447 start
+    #path_lists.append([0,0,90])
+    #path_lists.append([0,2.5,90])
+    #path_lists.append([0,2.5,-90])
+    #path_lists.append([0,0,-90])
+    #path_lists.append([0,0,0])
+    # 447 end
+    
+    # man toilet start
+    #path_lists.append([0,0,90])
+    #path_lists.append([0,7.8,90])
+    #path_lists.append([0,7.8,-90])
+    #path_lists.append([0,0,-90])
+    #path_lists.append([0,0,0])
+    # man toilet end
+    
+    # 424 start
+    #path_lists.append([0,0,90])
+    #path_lists.append([0,7.7,90])
+    #path_lists.append([0,7.7,0])
+    #path_lists.append([1.5,7.7,0])
+    #path_lists.append([1.5,7.7,-180])
+    #path_lists.append([0,7.7,-180])
+    #path_lists.append([0,7.7,-90])
+    #path_lists.append([0,0,-90])
+    #path_lists.append([0,0,0])
+    # 424 end
+    
     path_lists.append([0,0,90])
-    path_lists.append([0,3,90])
-    path_lists.append([0,3,-90])
+    path_lists.append([0,7.7,90])
+    path_lists.append([0,7.7,0])
+    path_lists.append([6.5,7.7,0])
+    path_lists.append([6.5,7.7,180])
+    path_lists.append([0,7.7,180])
+    #path_lists.append([0,7.7,-90])
     path_lists.append([0,0,-90])
     path_lists.append([0,0,0])
-    #path_lists.append([0,-15,0])
+    
+    # moohan start 
+    #path_lists.append([0,0,90])
+    #path_lists.append([0,13.5,90])
+    #path_lists.append([0,13.5,-90])
+    #path_lists.append([0,0,-90])
+    #path_lists.append([0,0,0])
+    # moohan end
+    
+    # 445 start 
+    #path_lists.append([0,0,90])
+    #path_lists.append([0,22,90])
+    #path_lists.append([0,22,-90])
+    #path_lists.append([0,0,-90])
+    #path_lists.append([0,0,0])
+    # 445 end
+    
+    
+    #path_lists.append([5,7.6,180])
+    #path_lists.append([0,7.6,180])
     #path_lists.append([0,-15,90])
     #path_lists.append([0,0,90])
     #path_lists.append([0,0,0])
