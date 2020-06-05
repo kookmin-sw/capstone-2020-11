@@ -19,14 +19,6 @@ class json_request():
     	self.isRunning = 0
     	self.goalState = ''
     	
-    	self.pointList = {}
-    	self.pointList[u'445\ud638'] = (0, 0)
-    	self.pointList[u'446\ud638'] = (0, 0)
-    	self.pointList[u'447\ud638'] = (0, 0)
-    	self.pointList[u'422\ud638'] = (0, 0)
-    	self.pointList[u'424\ud638'] = (0, 0)
-    	self.pointList[u''] = (0, 0)
-    	
     def checkServer(self):
         data = requests.get(self.REQ_URL, headers=self.HEADER).json()
         self.isRunning = data['isRunning']
@@ -53,7 +45,7 @@ class json_request():
         
     def returnTargetPoint(self):
         
-        return self.pointList[self.goalState]
+        return self.goalState
         	
 def signal_handler(signum, f):
     sys.exit()
