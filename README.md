@@ -92,7 +92,7 @@
 ```
 
 
-`GIF TEST`
+- GIF TEST
 ![test_gif](./images/test.gif)
 
 ## 5. 사용법
