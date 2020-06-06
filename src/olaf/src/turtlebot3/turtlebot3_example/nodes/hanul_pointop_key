@@ -1,21 +1,4 @@
 #!/usr/bin/env python
-#################################################################################
-# Copyright 2018 ROBOTIS CO., LTD.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#################################################################################
-
-# Authors: Gilbert #
 
 import rospy
 from geometry_msgs.msg import Twist, Point, Quaternion
@@ -23,35 +6,217 @@ import tf
 from math import radians, copysign, sqrt, pow, pi, atan2
 from tf.transformations import euler_from_quaternion
 import numpy as np
-from sensor_msgs.msg import LaserScan
+import signal
+import sys
+from std_msgs.msg import Int32MultiArray
 
-msg = """
-control your Turtlebot3!
------------------------
-Insert xyz - coordinate.
-x : position x (m)
-y : position y (m)
-z : orientation z (degree: -180 ~ 180)
-If you want to close, insert 's'
------------------------
-"""
+BURGER_MAX_LIN_VEL = 0.22
+BURGER_MAX_ANG_VEL = 1.5
+ANG_VEL_STEP_SIZE = 0.1
+
+g_lane_location = 0
 
 class GotoPoint():
-    def __init__(self, path_list): ### path_list parameter added
-        rospy.init_node('turtlebot3_pointop_key', anonymous=False)
+    def __init__(self, path_list):
+
+        rospy.init_node('olaf_pointop', anonymous=False)
         rospy.on_shutdown(self.shutdown)
         self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
         
-        ### dahun modified source lines ###
-        rospy.Subscriber('scan', LaserScan, hlds_callback)
-        ### dahun modified source lines ###
+        ### 06-03 added ###
         
+        self.lane_data_sub = rospy.Subscriber("lane_data", Int32MultiArray, self.lane_callback)
+        self.last_target_angle = 0
+        self.MAX_LIN_VEL = 0
+        global g_lane_location
+        
+        ### 06-03 added ###
+
         position = Point()
         move_cmd = Twist()
-        r = rospy.Rate(10)
+
+        self.rate = rospy.Rate(10)
         self.tf_listener = tf.TransformListener()
         self.odom_frame = 'odom'
 
+        self.TF_LISTEN()
+
+        (goal_x, goal_y) = (path_list[0], path_list[1])
+
+        ### 06-03 added ###
+        self.LAST_TARGET_POINT_X = goal_x
+        self.LAST_TARGET_POINT_Y = goal_y
+        ### 06-03 added ###
+
+        self.rotate_before_move(goal_x, goal_y)
+        self.move(goal_x, goal_y)
+
+    def lane_callback(self, msg):
+        global g_lane_location	
+        g_lane_location = msg.data[0]
+
+    def rotate_before_move(self, target_x, target_y):
+
+        (position, rotation) = self.get_odom()
+        (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
+
+        turn_cmd = Twist()
+        turn_cmd.linear.x = 0.0
+
+        (x_diff, y_diff) = (int(x_diff), int(y_diff))
+
+        target_angle = 0.0
+
+        if x_diff > 0:
+            xy_flag = 0
+            pass
+
+        elif x_diff < 0:
+            if self.last_target_angle < 0:
+                target_angle = -180
+            else:
+                target_angle = 180
+
+        elif y_diff > 0:
+            xy_flag = 1
+            target_angle = 90
+
+        elif y_diff < 0:
+            xy_flag = 1
+            target_angle = -90
+
+        else:
+            print("Wrong path operation.")
+            self.shutdown()
+            
+        self.last_target_angle = target_angle
+
+        target_angle = np.deg2rad(target_angle)
+        print("x_diff :" + str(x_diff))
+        print("y_diff :" + str(y_diff))
+        print("target_angle :" + str(target_angle))
+
+        while abs(rotation - target_angle) > 0.05:
+
+            (position, rotation) = self.get_odom()
+            if target_angle > 0:
+                if rotation <= target_angle and rotation >= target_angle - pi:
+                    turn_cmd.angular.z = 0.5
+                else:
+                    turn_cmd.angular.z = -0.5
+            else:
+                if rotation <= target_angle + pi and rotation > target_angle:
+                    turn_cmd.angular.z = -0.5
+                else:
+                    turn_cmd.angular.z = 0.5
+
+            self.cmd_vel.publish(turn_cmd)
+            self.rate.sleep()
+
+        rospy.loginfo("Stopping the robot...")
+        #return xy_flag
+
+    def move(self, target_x, target_y):
+		
+        global g_lane_location
+		
+        move_cmd = Twist()
+        (position, rotation) = self.get_odom()
+        last_rotation = 0.0
+        
+        
+        distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+        '''
+        ##### IMU? #####
+        distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+        if target_x != slef.LAST_TARGET_POINT_X:
+            distance = sqrt(pow(target_x - position.x,2))
+        elif target_y != self.LAST_TARGET_POINT_Y:
+            distance = sqrt(pow(target_y - position.y,2))
+        else:
+            distance = 0
+        '''
+        #### IMU? ####
+        lane_location = g_lane_location
+
+        while distance > 0.05:
+            (position, rotation) = self.get_odom()
+            x_start = position.x
+            y_start = position.y
+            
+            path_angle = atan2(target_y - y_start, target_x - x_start)
+            
+            lane_diff = (330.0 - float(g_lane_location))
+            print("g_lane_diff : " + str(g_lane_location))
+            
+            
+            if path_angle > pi-0.1 and rotation <= 0:
+                rotation = 2*pi + rotation
+            elif path_angle < -pi+0.1 and rotation > 0:
+                rotation = -2*pi + rotation
+            
+            
+            #### OpenCV ####
+            if abs(lane_diff) > 30 and abs(lane_diff) < 80 :
+            	move_cmd.angular.z = lane_diff/33000
+            	if self.MAX_LIN_VEL > 0.25 :
+            		self.MAX_LIN_VEL -= 0.005
+            	print("******************lane_control 111111111111 ************")
+            elif abs(lane_diff) > 80 :
+            	if self.MAX_LIN_VEL > 0.25 :
+            		MAX_LIN_VEL -= 0.05
+            	move_cmd.angular.z = lane_diff/3300*5
+            	print("******************lane_control 222222222222 ************")
+            else :
+                '''
+                if path_angle > pi-0.1 and rotation <= 0:
+                    rotation = 2*pi + rotation
+                elif path_angle < -pi+0.1 and rotation > 0:
+                    rotation = -2*pi + rotation
+                '''        
+                move_cmd.angular.z = path_angle - rotation  
+            
+            
+                print("******************odom_control 111111111111 ************")
+                
+                
+            if distance < 0.7:
+                move_cmd.angular.z = path_angle - rotation
+            #### odom_conrol ####    
+            #move_cmd.angular.z = path_angle - rotation
+            
+            '''
+            #### IMU? ####
+            if target_x != self.LAST_TARGET_POINT_X:
+                distance = sqrt(pow(target_x - position.x,2))
+            elif target_y != self.LAST_TARGET_POINT_Y:
+                distance = sqrt(pow(target_y - position.y,2))
+            '''
+            distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+            #### IMU? ####
+            
+            #### slow move ####
+            if self.MAX_LIN_VEL < 0.2 :
+            	self.MAX_LIN_VEL += 0.001
+            move_cmd.linear.x = min(distance, self.MAX_LIN_VEL)
+            
+            '''
+            if move_cmd.angular.z > 0:
+                move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
+            else:
+                move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
+            '''  
+            print("path_angle: " + str(path_angle))
+            
+                
+            #lane_diff = lane_diff
+
+            last_rotation = rotation
+            self.cmd_vel.publish(move_cmd)
+            self.rate.sleep()
+        self.MAX_LIN_VEL = 0
+
+    def TF_LISTEN(self):
         try:
             self.tf_listener.waitForTransform(self.odom_frame, 'base_footprint', rospy.Time(), rospy.Duration(1.0))
             self.base_frame = 'base_footprint'
@@ -62,92 +227,6 @@ class GotoPoint():
             except (tf.Exception, tf.ConnectivityException, tf.LookupException):
                 rospy.loginfo("Cannot find transform between odom and base_link or base_footprint")
                 rospy.signal_shutdown("tf Exception")
-
-        (position, rotation) = self.get_odom()
-        last_rotation = 0
-        linear_speed = 1
-        angular_speed = 1
-        ### sunpil modified source lines ###
-        #(goal_x, goal_y, goal_z) = self.getkey()
-        (goal_x, goal_y, goal_z) = (path_list[0],path_list[1],path_list[2])
-        ### sunpil modified source lines ###
-        if goal_z > 180 or goal_z < -180:
-            print("you input wrong z range.")
-            self.shutdown()
-        goal_z = np.deg2rad(goal_z)
-        goal_distance = sqrt(pow(goal_x - position.x, 2) + pow(goal_y - position.y, 2))
-        distance = goal_distance
-
-        while distance > 0.05:
-            (position, rotation) = self.get_odom()
-            x_start = position.x
-            y_start = position.y
-            path_angle = atan2(goal_y - y_start, goal_x- x_start)
-
-            if path_angle < -pi/4 or path_angle > pi/4:
-                if goal_y < 0 and y_start < goal_y:
-                    path_angle = -2*pi + path_angle
-                elif goal_y >= 0 and y_start > goal_y:
-                    path_angle = 2*pi + path_angle
-            if last_rotation > pi-0.1 and rotation <= 0:
-                rotation = 2*pi + rotation
-            elif last_rotation < -pi+0.1 and rotation > 0:
-                rotation = -2*pi + rotation
-            move_cmd.angular.z = angular_speed * path_angle-rotation
-
-            distance = sqrt(pow((goal_x - x_start), 2) + pow((goal_y - y_start), 2))
-            
-            ### dahun modified source lines ###
-            if self.hlds_data.ranges[0] > 100.0:
-                move_cmd.linear.x = min(linear_speed * distance, 0.1)
-            else:
-                break
-            ### dahun modified source lines ###
-
-            if move_cmd.angular.z > 0:
-                move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
-            else:
-                move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
-
-            last_rotation = rotation
-            
-            ###hanul lines ####
-            go_forward()
-            ###hanul lines ###
-            
-            
-            self.cmd_vel.publish(move_cmd)
-            r.sleep()
-        (position, rotation) = self.get_odom()
-
-        while abs(rotation - goal_z) > 0.05:
-            (position, rotation) = self.get_odom()
-            if goal_z >= 0:
-                if rotation <= goal_z and rotation >= goal_z - pi:
-                    move_cmd.linear.x = 0.00
-                    move_cmd.angular.z = 0.5
-                else:
-                    move_cmd.linear.x = 0.00
-                    move_cmd.angular.z = -0.5
-            else:
-                if rotation <= goal_z + pi and rotation > goal_z:
-                    move_cmd.linear.x = 0.00
-                    move_cmd.angular.z = -0.5
-                else:
-                    move_cmd.linear.x = 0.00
-                    move_cmd.angular.z = 0.5
-            self.cmd_vel.publish(move_cmd)
-            r.sleep()
-
-        rospy.loginfo("Stopping the robot...")
-        self.cmd_vel.publish(Twist())
-
-    def getkey(self):
-        x, y, z = raw_input("| x | y | z |\n").split()
-        if x == 's':
-            self.shutdown()
-        x, y, z = [float(x), float(y), float(z)]
-        return x, y, z
 
     def get_odom(self):
         try:
@@ -160,17 +239,14 @@ class GotoPoint():
 
         return (Point(*trans), rotation[2])
 
-
     def shutdown(self):
         self.cmd_vel.publish(Twist())
         rospy.sleep(1)
-        
-    ### dahun modified source lines ###
-    def hlds_callback(self, data):
-        self.hlds_data = data
-        
-    ### dahun modified source lines ###
-    ### sunpil modified source lines ###
+
+def handler(signum, f):
+    print signum
+    sys.exit()
+
 def path_calc(start_x, start_y, target_x, target_y):
     arrived = False
     topic_list = list()
@@ -235,85 +311,22 @@ def path_calc(start_x, start_y, target_x, target_y):
                 current_z = 0
                 topic_list.append(np.array([start_x, start_y, 0]))
                 return topic_list
-    ### sunpil modified source lines ###
-    
-    
-#### hanul lines ####    
-BURGER_MAX_LIN_VEL = 0.22
-BURGER_MAX_ANG_VEL = 2.84
-ANG_VEL_STEP_SIZE = 0.1
-control_angular_vel = 0.0
-
-def makeSimpleProfile(output, input, slop):
-    if input > output:
-        output = min( input, output + slop )
-    elif input < output:
-        output = max( input, output - slop )
-    else:
-        output = input
-
-    return output
-
-def constrain(input, low, high):
-    if input < low:
-      input = low
-    elif input > high:
-      input = high
-    else:
-      input = input
-
-    return input
-
-    
-def sensor_callback(data) : 
-    global encoder
-    encoder = [data.left_encoder, data.right_encoder]
-
-def joint_callback(data) :
-    
-    left_vel = data.velocity[0]
-    right_vel = data.velocity[1]
-    
-    global velocity
-    
-    velocity = [left_vel, right_vel]
-def checkAngularLimitVelocity(vel):
-
-    vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
-    
-def go_forward ():
-    dif_vel = velocity[0] - velocity[1]
-    if dif_vel < 0.0 :
-        target_angular_vel = checkAngularLimitVelocity(1.14 * dif_vel)
-        
-    elif dif_vel > 0.0 : 
-        target_angular_vel = checkAngularLimitVelocity(1.0 * dif_vel)
-    
-    control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
-    
-    move_cmd.angular.z = control_angular_vel
-    
 
 if __name__ == '__main__':
-    try:
-        ### sunpil modified source lines ###
-        path_lists = path_calc(0, 0, 5, 2)
-        count = 0
-        
-        ### hanul line ###
-        sub_sensor = rospy.Subscriber('sensor_state', SensorState, sensor_callback)
-        sub_joint = rospy.Subscriber('joint_states', JointState, joint_callback)
-        ### hanul line ###
-        
-        
-        while not rospy.is_shutdown():
-            print(msg)
-            GotoPoint(path_lists[count])
-            count += 1
-            if count > len(path_lists):
-                break
-        ### sunpil modified source lines ###
 
-    except:
-        rospy.loginfo("shutdown program.")
+    path_lists = path_calc(0, 0, 2, 2)
+    print("++++++++++++")
+    print("path_lists")
+    for p in path_lists:
+        print(p)
+    print("++++++++++++")
+    count = 0
 
+    signal.signal(signal.SIGINT, handler)
+
+    while not rospy.is_shutdown():
+    
+        GotoPoint(path_lists[count])
+        count += 1
+        if count > len(path_lists):
+            break
