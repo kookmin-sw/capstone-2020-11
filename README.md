@@ -16,6 +16,7 @@
 - [Youtube](https://youtu.be/V9RMH4tUaUQ/) 계획서발표
 - [Youtube](https://youtu.be/tdBFq6ZRJdE/) 중간보고서
 - [Youtube](https://youtu.be/EMOXelOuhhg/) 2차 중간 시연 영상
+![session_2_gif](./images/session_2.gif)
 - [Youtube](https://youtu.be/pPz9lZsde4Q/) 2차 중간평가 발표 + 시연 영상
 
 ## 4. 팀 소개
@@ -60,7 +61,7 @@
   - 사용자에게 길안내 서비스(UI) 개발 및 관리
   - AWS EC2 를 이용한 웹 서버 작업
   - Json Server 개발 및 Data 관리
-   
+
 ```
 
 
@@ -74,7 +75,7 @@
   - 모터 컨트롤러 개발 및 관리
   - 각 센서와의 Nvidia Jetson Tx2 연동 시스템 구축
   - Hardware 설계 및 관리
-  
+
 ```
 
 
@@ -88,7 +89,7 @@
   - IMU 캘리브레이션 및 데이터 처리
   - 번호 추출 알고리즘 개발 및 관리
   - Navigation 시스템 개발 및 관리
-  
+
 ```  
 
 
