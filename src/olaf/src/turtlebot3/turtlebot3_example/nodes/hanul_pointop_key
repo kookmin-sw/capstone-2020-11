@@ -9,212 +9,310 @@ import numpy as np
 import signal
 import sys
 from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
+from path_list import Path_Node
 
-BURGER_MAX_LIN_VEL = 0.22
+
+MAX_LIN_VEL = 0
+CUR_LIN_VEL = 0
 BURGER_MAX_ANG_VEL = 1.5
 ANG_VEL_STEP_SIZE = 0.1
 
-g_lane_location = 0
+last_target_angle = 0
+
+LAST_TARGET_POINT_X = 0
+LAST_TARGET_POINT_Y = 0
+
+g_lane_location = 0 
+
+FRONT_DIST = 0.0
+RIGHT_DIST = 0.0
+LEFT_DIST = 0.0
 
 class GotoPoint():
     def __init__(self, path_list):
-
-        rospy.init_node('olaf_pointop', anonymous=False)
-        rospy.on_shutdown(self.shutdown)
-        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+        #### set global variable ####
+        global LAST_TARGET_POINT_X
+        global LAST_TARGET_POINT_Y
         
-        ### 06-03 added ###
-        
-        self.lane_data_sub = rospy.Subscriber("lane_data", Int32MultiArray, self.lane_callback)
-        self.last_target_angle = 0
-        self.MAX_LIN_VEL = 0
+        #### from pkg:vision import test.py ######
         global g_lane_location
         
-        ### 06-03 added ###
-
+        #### initialize ros_node olaf_pointop #####
+        rospy.init_node('olaf_pointop', anonymous=False)
+        rospy.on_shutdown(self.shutdown)
+        #### create publisher ####
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+        
+        
+        #### declare messages to publish ####
         position = Point()
-        move_cmd = Twist()
-
+        move_cmd = Twist()        
+        x_location = Point()
+        
+        
+        
+        self.lane_location = 0
         self.rate = rospy.Rate(10)
         self.tf_listener = tf.TransformListener()
+        
+        
+        #### declare odom_frame variable ####
         self.odom_frame = 'odom'
-
+        
+        #### Subscribe 'lane_data' topic from vision pkg test.py ####
+        self.lane_location_sub = rospy.Subscriber("lane_data",Int32MultiArray,self.callback)
+        #### Subscribe 'from_lidar_to_avoid' topic from turtlebot3_obstacle pkg ####
+        self.lidar_distance = rospy.Subscriber("from_lidar_to_avoid", Float32MultiArray, self.lidar_callback)
+        
+        #### set up odometry information ####
         self.TF_LISTEN()
-
-        (goal_x, goal_y) = (path_list[0], path_list[1])
-
-        ### 06-03 added ###
-        self.LAST_TARGET_POINT_X = goal_x
-        self.LAST_TARGET_POINT_Y = goal_y
-        ### 06-03 added ###
-
-        self.rotate_before_move(goal_x, goal_y)
-        self.move(goal_x, goal_y)
-
-    def lane_callback(self, msg):
-        global g_lane_location	
+        
+        #### get path_list ####
+        (goal_x, goal_y, goal_z) = (path_list[0], path_list[1], path_list[2])
+        #### get state information: 
+        ####
+        #### 	0 - on_drive
+        ####	1 - arrive_at_dest
+        ####	2 - return_to_start_pos
+        ####
+        goal_flag = path_list[3]
+        
+        #### call funtions ####
+        self.rotate_before_move(goal_x, goal_y, path_list[2])
+        self.move(goal_x, goal_y, goal_flag)
+        
+        #### reset TARGET_POINT ####
+        LAST_TARGET_POINT_X = goal_x
+        LAST_TARGET_POINT_Y = goal_y
+    
+    #### opencv callback function ####    
+    def callback(self,msg):
+        #### get center pixel of tile from vision pkg ####
+        global g_lane_location
         g_lane_location = msg.data[0]
+    
+    
+    #### lidar callback funtion ####    
+    def lidar_callback(self, msg):
+        #### get lidar data from turtlebot3_obstacle pkg ####
+        global FRONT_DIST, RIGHT_DIST, LEFT_DIST
+        FRONT_DIST, RIGHT_DIST, LEFT_DIST = msg.data
 
-    def rotate_before_move(self, target_x, target_y):
-
+    
+    #### rotate_before_move function ####
+    def rotate_before_move(self, target_x, target_y, target_z):
+        #### set global_variable ####
+        global last_target_angle, FRONT_DIST, RIGHT_DIST, LEFT_DIST
+        
+        #### get odom data; position and rotation ####
         (position, rotation) = self.get_odom()
+        
+        #### calculate difference between goal_pos and current_pos ####
         (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
-
+        
+        
+        #### declare message to publish; type Twist ####
         turn_cmd = Twist()
         turn_cmd.linear.x = 0.0
-
+        
+        
+        #### type changing; float to integer ####
         (x_diff, y_diff) = (int(x_diff), int(y_diff))
 
+        #### set variable ####
         target_angle = 0.0
+        target_angle = target_z    
+        last_target_angle = target_angle
 
-        if x_diff > 0:
-            xy_flag = 0
-            pass
-
-        elif x_diff < 0:
-            if self.last_target_angle < 0:
-                target_angle = -180
-            else:
-                target_angle = 180
-
-        elif y_diff > 0:
-            xy_flag = 1
-            target_angle = 90
-
-        elif y_diff < 0:
-            xy_flag = 1
-            target_angle = -90
-
-        else:
-            print("Wrong path operation.")
-            self.shutdown()
-            
-        self.last_target_angle = target_angle
-
+        #### convert target_angle; degree to radian ####
         target_angle = np.deg2rad(target_angle)
         print("x_diff :" + str(x_diff))
         print("y_diff :" + str(y_diff))
         print("target_angle :" + str(target_angle))
 
+        #### move ratate ####
         while abs(rotation - target_angle) > 0.05:
 
             (position, rotation) = self.get_odom()
             if target_angle > 0:
+                #### rotate left ####
                 if rotation <= target_angle and rotation >= target_angle - pi:
                     turn_cmd.angular.z = 0.5
+                #### rotate right  ####
                 else:
                     turn_cmd.angular.z = -0.5
             else:
+                #### rotate right ####
                 if rotation <= target_angle + pi and rotation > target_angle:
                     turn_cmd.angular.z = -0.5
+                #### ratate left ####
                 else:
                     turn_cmd.angular.z = 0.5
-
+                    
+                    
+            #### publish turn_cmd message ####
             self.cmd_vel.publish(turn_cmd)
             self.rate.sleep()
-
+        
         rospy.loginfo("Stopping the robot...")
-        #return xy_flag
-
-    def move(self, target_x, target_y):
-		
+    
+    
+    #### go_straight function ####
+    def move(self, target_x, target_y, returned_flag):
+        #### declare global variable #####
+        global MAX_LIN_VEL
+        global LAST_TARGET_POINT_X
+        global LAST_TARGET_POINT_Y
         global g_lane_location
-		
+        global FRONT_DIST, LEFT_DIST, RIGHT_DIST
+        
+        #### get vision data ####
+        lane_location = g_lane_location
+        
+        #### declare publish message ####
         move_cmd = Twist()
+        
+        #### get odom data ####
         (position, rotation) = self.get_odom()
         last_rotation = 0.0
         
+        #### center of lidar data ####
+        right_target_distance = 0.8
+        left_target_distance = 2.5
         
-        distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
-        '''
-        ##### IMU? #####
-        distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
-        if target_x != slef.LAST_TARGET_POINT_X:
-            distance = sqrt(pow(target_x - position.x,2))
-        elif target_y != self.LAST_TARGET_POINT_Y:
-            distance = sqrt(pow(target_y - position.y,2))
+        my_position_x = LAST_TARGET_POINT_X
+        my_position_y = LAST_TARGET_POINT_Y
+        
+        print("position : ", position)
+        
+        
+        #### odom distance ####
+        #distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+        
+        #### calculate distance by xy point ####
+        if target_x != LAST_TARGET_POINT_X:
+            distance = sqrt(pow(target_x - my_position_x,2))
+        elif target_y != LAST_TARGET_POINT_Y:
+            distance = sqrt(pow(target_y - my_position_y,2))
         else:
             distance = 0
-        '''
-        #### IMU? ####
-        lane_location = g_lane_location
 
+        #### move forward until arrive target_position ####
         while distance > 0.05:
+            #### get odom_data ####
             (position, rotation) = self.get_odom()
+            
+            # CURRENT POSITION X,Y
             x_start = position.x
             y_start = position.y
             
+            print("front_dist : ", FRONT_DIST)
+            print("right_dist : ", RIGHT_DIST)
+            print("left_dist : ", LEFT_DIST)
+            
+            #### reset x,y point ####
+            if target_x != LAST_TARGET_POINT_X:
+                x_start = position.x
+                y_start = LAST_TARGET_POINT_Y
+            elif target_y != LAST_TARGET_POINT_Y:
+                x_start = LAST_TARGET_POINT_X
+                y_start = position.y
+            else:
+                x_start = LAST_TARGET_POINT_X
+                y_start = LAST_TARGET_POINT_Y
+            	
+            # CURRENT POSITION -> TARGET POINT YAW VECTOR
             path_angle = atan2(target_y - y_start, target_x - x_start)
             
+            #### calculate difference of pixel between center of lane and center of width #### 
             lane_diff = (330.0 - float(g_lane_location))
-            print("g_lane_diff : " + str(g_lane_location))
             
+            print("lane_location : ", g_lane_location)
+            print("lane_diff : ", lane_diff)
             
+            #### change degree when over the 'PI' ####
             if path_angle > pi-0.1 and rotation <= 0:
                 rotation = 2*pi + rotation
             elif path_angle < -pi+0.1 and rotation > 0:
                 rotation = -2*pi + rotation
-            
-            
-            #### OpenCV ####
-            if abs(lane_diff) > 30 and abs(lane_diff) < 80 :
-            	move_cmd.angular.z = lane_diff/33000
-            	if self.MAX_LIN_VEL > 0.25 :
-            		self.MAX_LIN_VEL -= 0.005
-            	print("******************lane_control 111111111111 ************")
-            elif abs(lane_diff) > 80 :
-            	if self.MAX_LIN_VEL > 0.25 :
-            		MAX_LIN_VEL -= 0.05
-            	move_cmd.angular.z = lane_diff/3300*5
-            	print("******************lane_control 222222222222 ************")
-            else :
-                '''
-                if path_angle > pi-0.1 and rotation <= 0:
-                    rotation = 2*pi + rotation
-                elif path_angle < -pi+0.1 and rotation > 0:
-                    rotation = -2*pi + rotation
-                '''        
-                move_cmd.angular.z = path_angle - rotation  
-            
-            
-                print("******************odom_control 111111111111 ************")
                 
-                
-            if distance < 0.7:
-                move_cmd.angular.z = path_angle - rotation
-            #### odom_conrol ####    
-            #move_cmd.angular.z = path_angle - rotation
+      
+            #### go_straight (angular = 0) ####
+            move_cmd.angular.z = 0
             
-            '''
-            #### IMU? ####
-            if target_x != self.LAST_TARGET_POINT_X:
-                distance = sqrt(pow(target_x - position.x,2))
-            elif target_y != self.LAST_TARGET_POINT_Y:
-                distance = sqrt(pow(target_y - position.y,2))
-            '''
-            distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
-            #### IMU? ####
-            
-            #### slow move ####
-            if self.MAX_LIN_VEL < 0.2 :
-            	self.MAX_LIN_VEL += 0.001
-            move_cmd.linear.x = min(distance, self.MAX_LIN_VEL)
-            
-            '''
-            if move_cmd.angular.z > 0:
-                move_cmd.angular.z = min(move_cmd.angular.z, 1.5)
+            #### calculate angular by LiDAR data ####
+            if RIGHT_DIST < 0.7 and RIGHT_DIST > 0.3 and LEFT_DIST > 2.6 and LEFT_DIST < 3.2:
+                move_cmd.angular.z = (right_target_distance - RIGHT_DIST)*0.05
+                print("---------Right Wall Collision---------")
+            elif RIGHT_DIST > 0.9 and RIGHT_DIST < 1.3 and LEFT_DIST < 2.4 and LEFT_DIST > 2.0:
+                print("---------Left Wall Collision---------")
+                move_cmd.angular.z = (right_target_distance - RIGHT_DIST)*0.05
             else:
-                move_cmd.angular.z = max(move_cmd.angular.z, -1.5)
-            '''  
-            print("path_angle: " + str(path_angle))
+                pass 
             
+            
+            #### calculate angular by vision data ####
+            if returned_flag == 2 and distance < 2:
+                move_cmd.angular.z = path_angle - rotation
+                print("&&&&&&&&&&&odom_control&&&&&&&&&&&&&&&&&&")
+            elif abs(lane_diff) <= 30:
+                move_cmd.angular.z = path_angle - rotation
+                print("&&&&&&&&&&&odom_control&&&&&&&&&&&&&&&&&&")
+            elif abs(lane_diff) > 30 and abs(lane_diff) < 80:
+                move_cmd.angular.z = lane_diff/33000
+                if MAX_LIN_VEL > 0.25:
+                    MAX_LIN_VEL -= 0.005
+                print("***********lane_contorl111111111________________")
+            elif abs(lane_diff) >= 80:
+                if MAX_LIN_VEL > 0.25:
+                    MAX_LIN_VEL -= 0.05
+                move_cmd.angular.z = lane_diff/3300*5
+                print("***********lane_contorl2222222________________")
+            
+            #else :
+            #    move_cmd.angular.z = path_angle - rotation
+            #    print("&&&&&&&&&&&odom_control&&&&&&&&&&&&&&&&&&")
+            
+            
+            
+            #### recalculate distance #####
+            if target_x != LAST_TARGET_POINT_X:
+                distance = sqrt(pow(target_x - x_start,2))
+            elif target_y != LAST_TARGET_POINT_Y:
+                distance = sqrt(pow(target_y - y_start,2))
+            else:
+                distance = 0
                 
-            #lane_diff = lane_diff
-
+            #### distance from odom ####    
+            #distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
+            
+            #### increase velocity slowly ####
+            if MAX_LIN_VEL < 0.18:
+                MAX_LIN_VEL+=0.001
+            #### limit velocity to do not exceed MAXIMUM value ####
+            move_cmd.linear.x = min(distance, MAX_LIN_VEL)
+            
+            
+            print("distance : ", distance)
+            print("position x : ",position.x)
+            print("position y : ",position.y)
+            
+            print("target_x : ", target_x)
+            print("target_y : ", target_y)
+            
+            print("move_cmd.angular.z : ", move_cmd.angular.z)
+            #print("path_angle: " + str(path_angle))
+            #print("diff : ", abs(path_angle - rotation))
+            
+            #### reset last_rotation ####
             last_rotation = rotation
+            #### publish move_cmd msg to control motor #####
             self.cmd_vel.publish(move_cmd)
             self.rate.sleep()
-        self.MAX_LIN_VEL = 0
+        
+        #### reset MAX_LIN_VEL ####
+        MAX_LIN_VEL = 0
 
     def TF_LISTEN(self):
         try:
@@ -227,7 +325,9 @@ class GotoPoint():
             except (tf.Exception, tf.ConnectivityException, tf.LookupException):
                 rospy.loginfo("Cannot find transform between odom and base_link or base_footprint")
                 rospy.signal_shutdown("tf Exception")
-
+    
+    
+    #### get_odom data : current x,y point and rotation ####
     def get_odom(self):
         try:
             (trans, rot) = self.tf_listener.lookupTransform(self.odom_frame, self.base_frame, rospy.Time(0))
@@ -238,95 +338,40 @@ class GotoPoint():
             return
 
         return (Point(*trans), rotation[2])
+        
 
     def shutdown(self):
         self.cmd_vel.publish(Twist())
         rospy.sleep(1)
-
+        
+        
+#### Force quit ####
 def handler(signum, f):
     print signum
     sys.exit()
 
-def path_calc(start_x, start_y, target_x, target_y):
-    arrived = False
-    topic_list = list()
-    control_topic = np.array([0,0,0])
-    start_z = 0
-    current_x = start_x
-    current_y = start_y
-    current_z = 0
-    point_z = 0
-    while(1):
-        if not arrived:
-            if target_x != current_x:
-                print("target_x != current_x")
-                control_topic[0] = target_x - current_x
-                if target_y - start_y < 0:
-                    control_topic[2] = -90
-                    current_z = -90
-                    point_z = -90
-                elif target_y - start_y > 0:
-                    control_topic[2] = 90
-                    current_z = 90
-                    point_z = 90
-                    tmp_control = np.array(control_topic)
-                    topic_list.append(tmp_control)
-                    current_x = control_topic[0]
-                    current_y = control_topic[1]
-                    current_z = control_topic[2]
-            elif target_x == current_x and target_y != current_y:
-                print("target_x == current_x and target_y != current_y")
-                control_topic[1] = target_y - start_y
-                tmp_control = np.array(control_topic)
-                topic_list.append(tmp_control)
-                current_x = control_topic[0]
-                current_y = control_topic[1]
-                current_z = control_topic[2]
-            elif current_x == target_x and target_y == current_y:
-                print("arrived")
-                arrived = True
-        else:
-            print("arrived else")
-            if current_x == target_x and current_y == target_y and current_z == point_z:
-                control_topic[2] = -current_z
-                tmp_control = np.array(control_topic)
-                current_z = -current_z
-                #topic_list.append(tmp_control)
-            elif current_x == target_x and current_y == target_y and current_z == -point_z:
-                control_topic = np.array(topic_list[0])
-                if current_z > 0:
-                    control_topic[2] = -180
-                else:
-                    control_topic[2] = 180
-                tmp_control = np.array(control_topic)
-                current_x = tmp_control[0]
-                current_y = tmp_control[1]
-                current_z = tmp_control[2]
-                topic_list.append(tmp_control)
-            elif current_y == start_y and current_x != start_x:
-                control_topic = np.array([start_x,start_y,current_z])
-                topic_list.append(control_topic)
-                current_x = control_topic[0]
-                current_y = control_topic[1]
-                current_z = 0
-                topic_list.append(np.array([start_x, start_y, 0]))
-                return topic_list
-
 if __name__ == '__main__':
-
-    path_lists = path_calc(0, 0, 2, 2)
+    
+    #### get path_node by path_list.py ####
+    path_node = Path_Node()
+    path_list = path_node.get_path_list("door")
+    
+    #### print paht_list point ####
     print("++++++++++++")
     print("path_lists")
-    for p in path_lists:
+    for p in path_list:
         print(p)
     print("++++++++++++")
+    
     count = 0
 
+    #### FORCE quit ####
     signal.signal(signal.SIGINT, handler)
 
+    #### navigation ####
     while not rospy.is_shutdown():
     
-        GotoPoint(path_lists[count])
+        GotoPoint(path_list[count])
         count += 1
-        if count > len(path_lists):
+        if count > len(path_list):
             break
