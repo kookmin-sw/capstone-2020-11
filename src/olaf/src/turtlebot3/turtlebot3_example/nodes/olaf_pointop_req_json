@@ -340,7 +340,7 @@ if __name__ == '__main__':
     
     rospy.init_node('olaf_pointop', anonymous=False)
 
-    connectionObject = json_request()
+    connectionObject = json_request(6)
     connectionObject.polling()
 
     #path_lists = path_calc(0, 0, 10, 2)
@@ -371,11 +371,16 @@ if __name__ == '__main__':
         print(p)
     print("++++++++++++")
     count = 0
+    
+    dstIndex = 3
 
     while not rospy.is_shutdown():
     
-        GotoPoint(path_lists[count])
-        
+        try:
+            GotoPoint(path_lists[count])
+        except:
+            pass
+            
         count += 1
         if count == dstIndex:
             connectionObject.update(2)
@@ -383,3 +388,5 @@ if __name__ == '__main__':
         elif count > len(path_lists):
             connectionObject.update(0)
             break
+        
+        

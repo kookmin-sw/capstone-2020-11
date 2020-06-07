@@ -8,13 +8,13 @@ import numpy as np
 
 class json_request():
 
-    def __init__(self):
+    def __init__(self, FLOOR):
     
         AWS_IP = '15.164.164.49'
         PREFIX = 'http://'
-        POSTFIX = ':3000/running'
+        POSTFIX = ':3000/running/'
 	    
-        self.REQ_URL = PREFIX + AWS_IP + POSTFIX
+        self.REQ_URL = PREFIX + AWS_IP + POSTFIX + str(FLOOR)
     	self.HEADER = {'Content-Type':'application/json'}
     	self.isRunning = 0
     	self.goalState = ''
@@ -40,7 +40,7 @@ class json_request():
             
     def update(self, data):
     
-        inputData = '{"isRunning":' + str(data) + '}'
+        inputData = '{"isRunning":' + str(data) + ', "goalState": "center_elevator", "icon": "arrow-forward-circle-outline", "name": ""}'
         response = requests.put(self.REQ_URL, headers=self.HEADER, data=inputData)
         
     def returnTargetPoint(self):
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     
     signal.signal(signal.SIGINT, signal_handler)
     
-    connectionObject = json_request()
+    connectionObject = json_request(6)
     
     while True:
     
