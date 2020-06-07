@@ -59,7 +59,7 @@
 * Role:
   - 사용자에게 길안내 서비스(UI) 개발 및 관리
   - AWS EC2 를 이용한 웹 서버 작업
-  - ionic 빌드를 통한 application 빌드 (android, ios)
+  - Json Server 개발 및 Data 관리
    
 ```
 
@@ -92,7 +92,7 @@
 ```  
 
 
-- GIF TEST
+- GIF TEST  
 ![test_gif](./images/test.gif)
 
 ## 5. 사용법
