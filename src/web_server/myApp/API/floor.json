@@ -1,0 +1,155 @@
+{
+  "running": [
+    {
+      "isRunning": 0,
+      "id": 4
+    },
+    {
+      "isRunning": 0,
+      "id": 6
+    },
+    {
+      "isRunning": 0,
+      "id": 7
+    }
+  ],
+  "floorList": [
+    "4",
+    "6",
+    "7"
+  ],
+  "floorData": {
+    "4": [
+      {
+        "goal": "445",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "445호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "446",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "446호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "447",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "447호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "422",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "422호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "424",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "424호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "center_elevator",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "중앙 엘리베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "goal": "001",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "공통전산실",
+        "icon": "laptop-outline"
+      },
+      {
+        "goal": "002",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "무한상상실",
+        "icon": "laptop-outline"
+      }
+    ],
+    "6": [
+      {
+        "goal": "629",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "629호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "611",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "611호",
+        "icon": "walk-outline"
+      },
+      {
+        "goal": "631",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "소프트웨어 학부 사무실",
+        "icon": "laptop-outline"
+      },
+      {
+        "goal": "center_elevator",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "중앙 엘리베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "goal": "001",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "G-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "goal": "002",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "T-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "goal": "003",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "P-Lab",
+        "icon": "laptop-outline"
+      }
+    ],
+    "7": [
+      {
+        "goal": "center_elevator",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "중앙 엘리베이터",
+        "icon": "arrow-forward-circle-outline"
+      },
+      {
+        "goal": "001",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "K-Lab",
+        "icon": "laptop-outline"
+      },
+      {
+        "goal": "002",
+        "subGoal": "center_elevator",
+        "subName": "중앙 엘리베이터",
+        "name": "M-Lab",
+        "icon": "laptop-outline"
+      }
+    ]
+  }
+}

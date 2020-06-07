@@ -11,12 +11,14 @@ import { ApiService } from '../service/ApiService';
 })
 export class Tab2Page {
 
+  private urlFloor: string;
+
   private floorList: any;
   private floorNum: string;
   private floorData: any;
   private totalData: any;
 
-  private isRunning: number;
+  private runningData: any;
   private interval: any;
 
   constructor(public actionSheetController: ActionSheetController,
@@ -28,20 +30,31 @@ export class Tab2Page {
     if (this.floorNum == null) {
       this.floorNum = '4';
     }
-    this.isRunning = 1;
+    this.urlFloor = this.floorNum;
+    console.log('urlFloor', this.urlFloor);
+    // this.isRunning = 1;
+    this.runningData = {
+      isRunning: 1
+    };
     this.readData();
   }
 
-  alert(idx: number, msg: string) {
-    console.log('alert & isRunning', this.isRunning);
-    if (this.isRunning === 1) {
-      // alert('이미 주행중입니다.\n' +
-      //     '잠시 후 다시 이용해 주시기 바랍니다.');
+  alert(floor: object) {
+    console.log('alert & isRunning');
+    if (this.runningData.isRunning === 1) {
       this.presentAlert();
     } else {
       // msg = '<string${msg}></string> 해당 장소로 이동하시겠습니까?';
       // confirm(msg);
-      this.presentConfirm(msg, `해당 장소로 이동하시겠습니까?`);
+      const sameFloor = this.urlFloor === this.floorNum;
+      // @ts-ignore
+      const name = sameFloor ? floor.name : floor.subName;
+      // @ts-ignore
+      const goal = sameFloor ? floor.goal : floor.subGoal;
+      // @ts-ignore
+      const icon = sameFloor ? floor.icon : 'arrow-forward-circle-outline';
+      const msg = sameFloor ? `해당 장소로 이동하시겠습니까?` : `해당 장소로 이동을 위해<br/><b>${this.urlFloor}층 ${name}</b>까지 이동하겠습니다.<br/>해당 장소로 이동하시겠습니까?`;
+      this.presentConfirm(name, goal, icon, msg);
     }
   }
 
@@ -56,13 +69,27 @@ export class Tab2Page {
         this.totalData = floorData;
         this.floorData = this.totalData[this.floorNum];
       });
-    });
 
-    this.apiService.getRunning().subscribe((data) => {
-      console.log('json server running', data);
-      this.isRunning = data.isRunning;
-      if (this.isRunning === 1) {
-        this.timer();
+      // 잘못된 경로일시 4층 redirect
+      if (!this.floorList.includes(this.urlFloor)) {
+        location.href = '/tabs/list/4';
+        return;
+      }
+
+      // tslint:disable-next-line:no-conditional-assignment
+      for (let i = 0, iter; iter = this.floorList[i]; ++i) {
+        console.log(iter);
+        this.apiService.getRunning(iter).subscribe((data) => {
+          console.log('json server running', data);
+          if (this.urlFloor === iter) {
+            this.runningData = data;
+            console.log('running data', this.runningData);
+            if (this.runningData.isRunning !== 0) {
+              console.log('readData start timer');
+              this.timer();
+            }
+          }
+        });
       }
     });
   }
@@ -115,7 +142,7 @@ export class Tab2Page {
     const alert = await this.alertController.create({
       // header: '주행중 알림',
       // subHeader: 'Subtitle',
-      message: '이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.',
+      message: `${this.urlFloor}층은 이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.`,
       buttons: [
           {
             text: '확인',
@@ -129,10 +156,10 @@ export class Tab2Page {
     await alert.present();
   }
 
-  async presentConfirm(head, msg) {
+  async presentConfirm(name, goal, icon, msg) {
     const alert = await this.alertController.create({
       // header: '운행 여부',
-      header: head,
+      header: `${this.floorNum}층 ${name}`,
       // subHeader: 'confirm test',
       message: msg,
       buttons: [
@@ -147,8 +174,12 @@ export class Tab2Page {
           text: '확인',
           handler: () => {
             console.log('confirm ok click');
-            this.isRunning = 1;
-            this.apiService.updateRunning(head).subscribe((d) => {
+            this.runningData = {
+              isRunning: 1,
+              icon,
+              name
+            };
+            this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
               this.timer();
             });
           }
@@ -160,22 +191,29 @@ export class Tab2Page {
   }
 
   private timer() {
+    this.floorNum = this.urlFloor;
+    console.log('timer floorNum', this.floorNum);
     this.interval = setInterval(() => {
+      // document.querySelector('#page_list').setAttribute('class', 'page_list');
       const st = new Date().getTime();
-      this.apiService.getRunning().subscribe((data) => {
+      // const floorNumber = inputFloorNumber.toString();
+      this.apiService.getRunning(this.urlFloor).subscribe((data) => {
         const et = new Date().getTime();
-        console.log('interval get json server running data');
-        console.log('et :', et, ', st :', st);
-        console.log('using time :', (et - st));
-        if (this.isRunning === 0) {
+        console.log('interval get json server running data', data);
+        // console.log('et :', et, ', st :', st);
+        // console.log('using time :', (et - st));
+        if (this.runningData.isRunning === 0) {
+          console.log('interval runningData === 0');
           clearInterval(this.interval);
           return;
         }
 
         if (data.isRunning === 0) {
           console.log('clear interval');
-          this.isRunning = 0;
+          this.runningData = data;
           clearInterval(this.interval);
+        } else {
+          this.runningData.isRunning = data.isRunning;
         }
       });
     }, 1000);
