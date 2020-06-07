@@ -11,12 +11,14 @@ import { ApiService } from '../service/ApiService';
 })
 export class ListPage {
 
-  private floorList: any;
+  private urlFloor: string;
+
+  private floorList: Array<string>;
   private floorNum: string;
   private floorData: any;
   private totalData: any;
 
-  private isRunning: number;
+  private runningData: any;
   private interval: any;
 
   constructor(public actionSheetController: ActionSheetController,
@@ -24,45 +26,59 @@ export class ListPage {
               public alertController: AlertController,
               public apiService: ApiService) {
     this.floorNum = route.snapshot.params.floorNum;
-    if (this.floorNum == null || this.floorNum === undefined) {
+    if (this.floorNum == null) {
       this.floorNum = '4';
     }
-    this.isRunning = 1;
+    this.urlFloor = this.floorNum;
+    this.runningData = {
+      isRunning: 1
+    };
     this.readData();
   }
 
-  alert(idx: number, msg: string) {
-    if (this.isRunning === 1) {
+  alert(floor: object) {
+    if (this.runningData.isRunning === 1) {
       this.presentAlert();
     } else {
-      this.presentConfirm(msg, '해당 장소로 이동하시겠습니까?');
+      const sameFloor = (this.urlFloor === this.floorNum);
+      // @ts-ignore
+      const name = sameFloor ? floor.name : floor.subName;
+      // @ts-ignore
+      const goal = sameFloor ? floor.goal : floor.subGoal;
+      // @ts-ignore
+      const icon = sameFloor ? floor.icon : 'arrow-forward-circle-outline';
+      const msg = sameFloor ? `해당 장소로 이동하시겠습니까?` : `해당 장소로 이동을 위해<br/><b>${this.urlFloor}층 ${name}</b>까지 이동하겠습니다.<br/>해당 장소로 이동하시겠습니까?`;
+      this.presentConfirm(name, goal, icon, msg);
     }
   }
 
 
   readData() {
-    console.log('read_data');
     this.apiService.getFloorList().subscribe((floorList) => {
-      console.log('json server floorList', floorList);
       this.floorList = floorList;
       this.apiService.getFloorData().subscribe((floorData) => {
-        console.log('json server floorData', floorData);
         this.totalData = floorData;
         this.floorData = this.totalData[this.floorNum];
       });
-    });
 
-    this.apiService.getRunning().subscribe((data) => {
-      console.log('json server running', data);
-      this.isRunning = data.isRunning;
-      if (this.isRunning === 1) {
-        this.timer();
+      // 잘못된 경로일시 4층 redirect
+      if (!this.floorList.includes(this.urlFloor)) {
+        location.href = '/tabs/list/4';
+        return;
+      }
+
+      // tslint:disable-next-line:no-conditional-assignment
+      for (let i = 0, iter; iter = this.floorList[i]; ++i) {
+        this.apiService.getRunning(iter).subscribe((data) => {
+          if (this.urlFloor === iter) {
+            this.runningData = data;
+            if (this.runningData.isRunning !== 0) {
+              this.timer();
+            }
+          }
+        });
       }
     });
-  }
-
-  testScrollTop() {
-    document.querySelector('ion-content').scrollToTop(500);
   }
 
   async presentActionSheet() {
@@ -84,7 +100,6 @@ export class ListPage {
       icon: 'close',
       role: 'cancel',
       handler: () => {
-        console.log('Cancel clicked');
       }
     });
 
@@ -97,12 +112,11 @@ export class ListPage {
 
   async presentAlert() {
     const alert = await this.alertController.create({
-      message: '이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.',
+      message: '${this.urlFloor}층은 이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.',
       buttons: [
         {
           text: '확인',
           handler: () => {
-            console.log('alert click');
           }
         }
       ]
@@ -111,24 +125,26 @@ export class ListPage {
     await alert.present();
   }
 
-  async presentConfirm(head, msg) {
+  async presentConfirm(name, goal, icon, msg) {
     const alert = await this.alertController.create({
-      header: head,
+      header: `${this.floorNum}층 ${name}`,
       message: msg,
       buttons: [
         {
           text: '취소',
           role: 'cancel',
           handler: () => {
-            console.log('confirm cancel click');
           }
         },
         {
           text: '확인',
           handler: () => {
-            console.log('confirm ok click');
-            this.isRunning = 1;
-            this.apiService.updateRunning(head).subscribe((d) => {
+            this.runningData = {
+              isRunning: 1,
+              icon,
+              name
+            };
+            this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
               this.timer();
             });
           }
@@ -140,18 +156,19 @@ export class ListPage {
   }
 
   private timer() {
+    this.floorNum = this.urlFloor;
     this.interval = setInterval(() => {
-      this.apiService.getRunning().subscribe((data) => {
-        console.log('interval get json server running data');
-        if (this.isRunning === 0) {
+      this.apiService.getRunning(this.urlFloor).subscribe((data) => {
+        if (this.runningData.isRunning === 0) {
           clearInterval(this.interval);
           return;
         }
 
         if (data.isRunning === 0) {
-          console.log('clear interval');
-          this.isRunning = 0;
+          this.runningData = data;
           clearInterval(this.interval);
+        } else {
+          this.runningData.isRunning = data.isRunning;
         }
       });
     }, 1000);

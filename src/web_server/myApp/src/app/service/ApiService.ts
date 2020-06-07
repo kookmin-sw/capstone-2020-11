@@ -12,6 +12,7 @@ export class ApiService {
     // server ip
     // tslint:disable-next-line:variable-name
     // base_ip = 'http://localhost';
+    // tslint:disable-next-line:variable-name
     base_ip = 'http://15.164.164.49';
 
     // server port
@@ -48,22 +49,24 @@ export class ApiService {
             'Something bad happened; please try again later.');
     }
 
-    getRunning(): Observable<any> {
+    getRunning(floorNum): Observable<any> {
         return this.http
-            .get<any>(`${this.base_path}/running`)
+            .get<any>(`${this.base_path}/running/${floorNum}`)
             .pipe(
                 retry(2),
                 catchError(this.handleError)
             );
     }
 
-    updateRunning(goalState): Observable<any> {
+    updateRunning(floorNum, goalState, icon, name): Observable<any> {
         const data = {
             isRunning: 1,
-            goalState: goalState.toString()
+            goalState: goalState.toString(),
+            icon: icon.toString(),
+            name: name.toString()
         };
         return this.http
-            .put<any>(`${this.base_path}/running`, JSON.stringify(data), this.httpOptions)
+            .put<any>(`${this.base_path}/running/${floorNum}`, JSON.stringify(data), this.httpOptions)
             .pipe(
                 retry(2),
                 catchError(this.handleError)
