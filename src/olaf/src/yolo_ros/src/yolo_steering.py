@@ -40,16 +40,19 @@ if __name__ == '__main__':
         boxes = box_data
         center = 0
         width = 0
+        l = []
         for i in range(len(boxes.bounding_boxes)):
             if boxes.bounding_boxes[i].Class == "person":
                 nobody = False
                 center = (boxes.bounding_boxes[i].xmin + boxes.bounding_boxes[i].xmax) // 2
                 width = (boxes.bounding_boxes[i].xmax - boxes.bounding_boxes[i].xmin) // 2
-        print("center :", center, "\t, width :", width)
+                l.append((center, width))
+        #print("center :", center, "\t, width :", width)
+        l2 = sorted(l, key=lambda x:x[1], reverse=True)
         if nobody:
             drive(0, 0)
-            print("not exist person")
+            #print("not exist person")
             continue
-        drive(center, width)
+        drive(l2[0][0], l2[0][1])
 
     rospy.on_shutdown(exit_node)
