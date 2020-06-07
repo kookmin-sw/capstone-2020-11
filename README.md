@@ -23,7 +23,7 @@
 ### Professor : 주용수
 
 
-<img align="left" src="./images/dahun.jpeg" height="200px"></img>
+<img align="left" src="./images/dahun.jpeg" height="180px"></img>
 
 ```markdown
 * Name: 김다훈
@@ -36,7 +36,7 @@
   - LiDAR 센서 데이터 처리 및 SLAM 알고리즘 수정
 ```
 
-<img align="left" src="./images/seonpil.jpeg" height="200px"></img>
+<img align="left" src="./images/seonpil.jpeg" height="180px"></img>
 
 ```markdown
 * Name: 김선필
@@ -50,7 +50,7 @@
 ```
 
 
-<img align="left" src="./images/myungsoo.jpeg" height="200px"></img>
+<img align="left" src="./images/myungsoo.jpeg" height="180px"></img>
 
 ```markdown
 * Name: 김명수
@@ -60,11 +60,11 @@
   - 사용자에게 길안내 서비스(UI) 개발 및 관리
   - AWS EC2 를 이용한 웹 서버 작업
   - ionic 빌드를 통한 application 빌드 (android, ios)
-
+   
 ```
 
 
-<img align="left" src="./images/hanul.jpeg" height="200px"></img>
+<img align="left" src="./images/hanul.jpeg" height="180px"></img>
 
 ```markdown
 * Name: 배한울
@@ -74,11 +74,11 @@
   - 모터 컨트롤러 개발 및 관리
   - 각 센서와의 Nvidia Jetson Tx2 연동 시스템 구축
   - Hardware 설계 및 관리
-
+  
 ```
 
 
-<img align="left" src="./images/chanwoo.jpeg" height="200px"></img>
+<img align="left" src="./images/chanwoo.jpeg" height="180px"></img>
 
 ```markdown
 * Name: 윤찬우
@@ -88,8 +88,8 @@
   - IMU 캘리브레이션 및 데이터 처리
   - 번호 추출 알고리즘 개발 및 관리
   - Navigation 시스템 개발 및 관리
-
-```
+  
+```  
 
 
 - GIF TEST
