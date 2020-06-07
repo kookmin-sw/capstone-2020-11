@@ -44,12 +44,12 @@ if __name__ == '__main__':
             if boxes.bounding_boxes[i].Class == "person":
                 nobody = False
                 center = (boxes.bounding_boxes[i].xmin + boxes.bounding_boxes[i].xmax) // 2
-                width = boxes.bounding_boxes[i].xmax - boxes.bounding_boxes[i].xmin
+                width = (boxes.bounding_boxes[i].xmax - boxes.bounding_boxes[i].xmin) // 2
         print("center :", center, "\t, width :", width)
         drive(center, width)
 
-        if nobody:
+        #if nobody:
             #drive(0, 0)
-            print("not exist person")
+            #print("not exist person")
 
     rospy.on_shutdown(exit_node)
