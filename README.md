@@ -117,3 +117,10 @@
     export OPENCR_MODEL=olaf
     sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
 ```
+
+- Launch Tele Operation
+![teleop_gif](./images/teleop.gif)
+```markdown
+    roslaunch turtlebot3_bringup turtlebot3_robot.launch
+    rosrun turtlebot3_teleop olaf_teleop_key
+```
