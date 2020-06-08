@@ -34,7 +34,7 @@ export class Tab2Page {
     console.log('urlFloor', this.urlFloor);
     // this.isRunning = 1;
     this.runningData = {
-      isRunning: 1
+      isRunning: 2
     };
     this.readData();
   }
@@ -84,13 +84,14 @@ export class Tab2Page {
           if (this.urlFloor === iter) {
             this.runningData = data;
             console.log('running data', this.runningData);
-            if (this.runningData.isRunning !== 0) {
-              console.log('readData start timer');
-              this.timer();
-            }
+            // if (this.runningData.isRunning !== 0) {
+            //   console.log('readData start timer');
+            //   this.timer();
+            // }
           }
         });
       }
+      this.timer();
     });
   }
 
@@ -133,6 +134,7 @@ export class Tab2Page {
 
     const actionSheet = await this.actionSheetController.create({
       header: '미래관',
+      mode: 'ios',
       buttons: buttonList
     });
     await actionSheet.present();
@@ -143,6 +145,7 @@ export class Tab2Page {
       // header: '주행중 알림',
       // subHeader: 'Subtitle',
       message: `${this.urlFloor}층은 이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.`,
+      mode: 'ios',
       buttons: [
           {
             text: '확인',
@@ -162,6 +165,7 @@ export class Tab2Page {
       header: `${this.floorNum}층 ${name}`,
       // subHeader: 'confirm test',
       message: msg,
+      mode: 'ios',
       buttons: [
         {
           text: '취소',
@@ -174,13 +178,20 @@ export class Tab2Page {
           text: '확인',
           handler: () => {
             console.log('confirm ok click');
-            this.runningData = {
-              isRunning: 1,
-              icon,
-              name
-            };
-            this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
-              this.timer();
+            this.apiService.getRunning(this.urlFloor).subscribe((data) => {
+              if (data.isRunning === 0) {
+                this.runningData = {
+                  isRunning: 1,
+                  icon,
+                  name
+                };
+                this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
+                  // this.timer();
+                  this.floorNum = this.urlFloor;
+                });
+              } else {
+                this.presentAlert();
+              }
             });
           }
         }
@@ -202,18 +213,23 @@ export class Tab2Page {
         console.log('interval get json server running data', data);
         // console.log('et :', et, ', st :', st);
         // console.log('using time :', (et - st));
-        if (this.runningData.isRunning === 0) {
-          console.log('interval runningData === 0');
-          clearInterval(this.interval);
-          return;
-        }
+        // if (this.runningData.isRunning === 0) {
+        //   console.log('interval runningData === 0');
+        //   clearInterval(this.interval);
+        //   return;
+        // }
 
-        if (data.isRunning === 0) {
-          console.log('clear interval');
-          this.runningData = data;
-          clearInterval(this.interval);
-        } else {
-          this.runningData.isRunning = data.isRunning;
+        // if (data.isRunning === 0) {
+        //   console.log('clear interval');
+        //   this.runningData = data;
+        //   clearInterval(this.interval);
+        // } else {
+        //   this.runningData.isRunning = data.isRunning;
+        // }
+
+        this.runningData = data;
+        if (this.runningData.isRunning !== 0) {
+          this.floorNum = this.urlFloor;
         }
       });
     }, 1000);

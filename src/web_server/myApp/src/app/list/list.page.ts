@@ -31,7 +31,7 @@ export class ListPage {
     }
     this.urlFloor = this.floorNum;
     this.runningData = {
-      isRunning: 1
+      isRunning: 2
     };
     this.readData();
   }
@@ -72,12 +72,10 @@ export class ListPage {
         this.apiService.getRunning(iter).subscribe((data) => {
           if (this.urlFloor === iter) {
             this.runningData = data;
-            if (this.runningData.isRunning !== 0) {
-              this.timer();
-            }
           }
         });
       }
+      this.timer();
     });
   }
 
@@ -105,6 +103,7 @@ export class ListPage {
 
     const actionSheet = await this.actionSheetController.create({
       header: '미래관',
+      mode: 'ios',
       buttons: buttonList
     });
     await actionSheet.present();
@@ -113,6 +112,7 @@ export class ListPage {
   async presentAlert() {
     const alert = await this.alertController.create({
       message: '${this.urlFloor}층은 이미 주행중입니다.<br/>잠시 후 다시 이용해 주시기 바랍니다.',
+      mode: 'ios',
       buttons: [
         {
           text: '확인',
@@ -129,6 +129,7 @@ export class ListPage {
     const alert = await this.alertController.create({
       header: `${this.floorNum}층 ${name}`,
       message: msg,
+      mode: 'ios',
       buttons: [
         {
           text: '취소',
@@ -139,13 +140,20 @@ export class ListPage {
         {
           text: '확인',
           handler: () => {
-            this.runningData = {
-              isRunning: 1,
-              icon,
-              name
-            };
-            this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
-              this.timer();
+            this.apiService.getRunning(this.urlFloor).subscribe((data) => {
+              if (data.isRunning === 0) {
+                this.runningData = {
+                  isRunning: 1,
+                  icon,
+                  name
+                };
+                this.apiService.updateRunning(this.urlFloor, goal, icon, name).subscribe((d) => {
+                  // this.timer();
+                  this.floorNum = this.urlFloor;
+                });
+              } else {
+                this.presentAlert();
+              }
             });
           }
         }
@@ -156,19 +164,11 @@ export class ListPage {
   }
 
   private timer() {
-    this.floorNum = this.urlFloor;
     this.interval = setInterval(() => {
       this.apiService.getRunning(this.urlFloor).subscribe((data) => {
-        if (this.runningData.isRunning === 0) {
-          clearInterval(this.interval);
-          return;
-        }
-
-        if (data.isRunning === 0) {
-          this.runningData = data;
-          clearInterval(this.interval);
-        } else {
-          this.runningData.isRunning = data.isRunning;
+        this.runningData = data;
+        if (this.runningData.isRunning !== 0) {
+          this.floorNum = this.urlFloor;
         }
       });
     }, 1000);
