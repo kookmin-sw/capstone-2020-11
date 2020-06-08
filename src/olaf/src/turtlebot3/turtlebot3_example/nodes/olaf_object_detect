@@ -11,7 +11,10 @@ import sys
 from std_msgs.msg import Int32MultiArray
 from std_msgs.msg import Float32MultiArray
 from path_list import Path_Node
+from json_request import json_request
+from sound import Sound
 
+FLOOR = 6
 
 MAX_LIN_VEL = 0
 CUR_LIN_VEL = 0
@@ -32,6 +35,8 @@ LEFT_DIST = 0.0
 human_center = 0.0
 human_width = 0.0
 
+dstIndex = 0
+
 class GotoPoint():
     def __init__(self, path_list):
         #### set global variable ####
@@ -41,30 +46,22 @@ class GotoPoint():
         #### from pkg:vision import test.py ######
         global g_lane_location
         
-        
         #### from pkg : yolo import yolo_steering.py ####
         global human_center, human_width
         
-        
-        #### initialize ros_node olaf_pointop #####
-        rospy.init_node('olaf_pointop', anonymous=False)
         rospy.on_shutdown(self.shutdown)
         #### create publisher ####
         self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
-        
         
         #### declare messages to publish ####
         position = Point()
         move_cmd = Twist()        
         x_location = Point()
         
-        
-        
         self.lane_location = 0
         self.rate = rospy.Rate(10)
         self.tf_listener = tf.TransformListener()
-        
-        
+
         #### declare odom_frame variable ####
         self.odom_frame = 'odom'
         
@@ -73,10 +70,7 @@ class GotoPoint():
         #### Subscribe 'from_lidar_to_avoid' topic from turtlebot3_obstacle pkg ####
         self.lidar_distance = rospy.Subscriber("from_lidar_to_avoid", Float32MultiArray, self.lidar_callback)
         #### Subscribe 'from_yolo_to_lidar' from yolo_ros pkg yolo_steering.py ###
-        self.yolo_data = rospy.Subscriber("from_yolo_to_lidar",Inte32MultiArray, self.yolo_callback)
-        
-        
-        
+        self.yolo_data = rospy.Subscriber("from_yolo_to_lidar",Int32MultiArray, self.yolo_callback)
         
         #### set up odometry information ####
         self.TF_LISTEN()
@@ -100,28 +94,24 @@ class GotoPoint():
         LAST_TARGET_POINT_Y = goal_y
     
     #### yolo callback funtion ####
-    def yolo_callback(self.msg) :
+    def yolo_callback(self,msg) :
         
         global human_center, human_width        
         human_center = msg.data[0]  
         human_width = msg.data[1]
-    
-    
-    
+
     #### opencv callback function ####    
     def lane_callback(self,msg):
         #### get center pixel of tile from vision pkg ####
         global g_lane_location
         g_lane_location = msg.data[0]
-    
-    
-    #### lidar callback funtion ####    
+
+    #### lidar callback funtion ####
     def lidar_callback(self, msg):
         #### get lidar data from turtlebot3_obstacle pkg ####
         global FRONT_DIST, RIGHT_DIST, LEFT_DIST
         FRONT_DIST, RIGHT_DIST, LEFT_DIST = msg.data
 
-    
     #### rotate_before_move function ####
     def rotate_before_move(self, target_x, target_y, target_z):
         #### set global_variable ####
@@ -133,11 +123,9 @@ class GotoPoint():
         #### calculate difference between goal_pos and current_pos ####
         (x_diff, y_diff) = (target_x - position.x, target_y - position.y)
         
-        
         #### declare message to publish; type Twist ####
         turn_cmd = Twist()
         turn_cmd.linear.x = 0.0
-        
         
         #### type changing; float to integer ####
         (x_diff, y_diff) = (int(x_diff), int(y_diff))
@@ -171,14 +159,12 @@ class GotoPoint():
                 #### ratate left ####
                 else:
                     turn_cmd.angular.z = 0.5
-                    
-                    
+
             #### publish turn_cmd message ####
             self.cmd_vel.publish(turn_cmd)
             self.rate.sleep()
         
         rospy.loginfo("Stopping the robot...")
-    
     
     #### go_straight function ####
     def move(self, target_x, target_y, returned_flag):
@@ -208,7 +194,6 @@ class GotoPoint():
         my_position_y = LAST_TARGET_POINT_Y
         
         print("position : ", position)
-        
         
         #### odom distance ####
         #distance = sqrt(pow(target_x - position.x, 2) + pow(target_y - position.y, 2))
@@ -259,7 +244,6 @@ class GotoPoint():
                 rotation = 2*pi + rotation
             elif path_angle < -pi+0.1 and rotation > 0:
                 rotation = -2*pi + rotation
-                
       
             #### go_straight (angular = 0) ####
             move_cmd.angular.z = 0
@@ -298,8 +282,6 @@ class GotoPoint():
             #    move_cmd.angular.z = path_angle - rotation
             #    print("&&&&&&&&&&&odom_control&&&&&&&&&&&&&&&&&&")
             
-            
-            
             #### recalculate distance #####
             if target_x != LAST_TARGET_POINT_X:
                 distance = sqrt(pow(target_x - x_start,2))
@@ -316,24 +298,22 @@ class GotoPoint():
                 MAX_LIN_VEL+=0.001
             #### limit velocity to do not exceed MAXIMUM value ####
             move_cmd.linear.x = min(distance, MAX_LIN_VEL)
-            
-            
-            
+
             #### human_recognition ####
-            if FRONT_DIST < 1.0 and FRONT_DIST > 0.1:
+            if FRONT_DIST < 2.0 and FRONT_DIST > 0.1:
             	if human_center > 300 and human_center < 980 and human_width > 150 :
             	
             	    while FRONT_DIST != 0.0 :
-            	    
-            	        if MAX_LIN_VEL > 0.0
-            	            MAX_LINVEL -= 0.01
-            	        
+            	        try:
+                	        if MAX_LIN_VEL > 0.0 :
+                	            MAX_LIN_VEL -= 0.01
+            	        except:
+            	            MAX_LIN_VEL = 0.0
             	        move_cmd.linear.x = MAX_LIN_VEL
             	        move_cmd.linear.z = 0.0
             	    
             	        self.cmd_vel.publish(move_cmd)
             	        self.rate.sleep()            
-            
             
             print("distance : ", distance)
             print("position x : ",position.x)
@@ -367,7 +347,6 @@ class GotoPoint():
                 rospy.loginfo("Cannot find transform between odom and base_link or base_footprint")
                 rospy.signal_shutdown("tf Exception")
     
-    
     #### get_odom data : current x,y point and rotation ####
     def get_odom(self):
         try:
@@ -379,12 +358,10 @@ class GotoPoint():
             return
 
         return (Point(*trans), rotation[2])
-        
 
     def shutdown(self):
         self.cmd_vel.publish(Twist())
         rospy.sleep(1)
-        
         
 #### Force quit ####
 def handler(signum, f):
@@ -392,10 +369,24 @@ def handler(signum, f):
     sys.exit()
 
 if __name__ == '__main__':
+
+    #### FORCE quit ####
+    signal.signal(signal.SIGINT, handler)
+    
+    #### initialize ros_node olaf_pointop #####
+    rospy.init_node('olaf_pointop', anonymous=False)
+    
+    connectionObject = json_request(FLOOR)
+    connectionObject.polling()
+    
     
     #### get path_node by path_list.py ####
     path_node = Path_Node()
-    path_list = path_node.get_path_list("test")
+    path_list = path_node.get_path_list(connectionObject.returnTargetPoint())
+    
+    #### Class Sound ####
+    music_player = Sound()
+    
     
     #### print paht_list point ####
     print("++++++++++++")
@@ -405,14 +396,21 @@ if __name__ == '__main__':
     print("++++++++++++")
     
     count = 0
-
-    #### FORCE quit ####
-    signal.signal(signal.SIGINT, handler)
+    
+    dstIndex = 4
 
     #### navigation ####
     while not rospy.is_shutdown():
     
-        GotoPoint(path_list[count])
+        try:
+            GotoPoint(path_list[count])
+        except:
+            pass
+            
         count += 1
-        if count > len(path_list):
+        if path_list[count][3] == 1:
+            connectionObject.update(2)
+            
+        elif count > len(path_list):
+            connectionObject.update(0)
             break
