@@ -18,6 +18,7 @@
 - [Youtube](https://youtu.be/EMOXelOuhhg/) 2차 중간 시연 영상
 ![session_2_gif](./images/session_2.gif)
 - [Youtube](https://youtu.be/pPz9lZsde4Q/) 2차 중간평가 발표 + 시연 영상
+- [Youtube](https://youtu.be/QH6-VXfbB1o/) 최종 발표 영상
 
 ## 4. 팀 소개
 
