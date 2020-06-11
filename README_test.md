@@ -18,7 +18,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 
 ## 3. 소개 영상
 
-![ad_gif](./images/ad.gif)
+![av_gif](./images/av.gif)
 
 - [Youtube](https://youtu.be/V9RMH4tUaUQ/) 계획서발표
 - [Youtube](https://youtu.be/tdBFq6ZRJdE/) 중간보고서
@@ -136,4 +136,65 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ```markdown
     roslaunch turtlebot3_bringup turtlebot3_robot.launch
     rosrun turtlebot3_teleop olaf_teleop_key
+```
+
+- VNC Setup
+```markdown
+    * insert options
+    sudo gedit /etc/modprobe.d/bcmdhd.conf
+
+    >> options bcmdhd op_mode=2
+
+    * nvidia tx2
+    ifconfig -> inet address check
+    10.42.0.1
+
+    * setting hotspot in xytron pdf
+    wifi name : olaf
+    wifi pw : nvidia123
+
+    * remote PC
+    turn on REMMINA
+    새로만들기
+
+    서버 : 10.42.0.1
+    비밀번호 : nvidia
+    색깊이 : 256색상 
+
+    * 해상도 조절
+    xrandr --fb 1280x720
+```
+
+- Jetson Tx2 Board Fan On
+```markdown
+    sudo ./jetson_clocks.sh
+```
+
+- Yolo and Lane Detection
+```markdown
+    * Upper and Lower Camera
+    roslaunch usb_cam test.launch
+    
+    * Lane Detection
+    rosrun vision lane_detection.py
+    
+    * Yolo
+    roslaunch yolo_ros yolo_test_rosbag.launch
+    rosrun yolo_ros yolo_steering.py
+```
+
+- Obstacle Detection
+```markdown
+    rosrun turtlebot3_example turtlebot3_obstacle
+```
+
+- Play Sound
+```markdown
+    roslaunch sound_play soundplay_node.launch
+    rosrun sound_play play.py
+```
+
+- Auto-Driving
+```markdown
+    rosrun run_olaf olaf_object_detect
 ```
