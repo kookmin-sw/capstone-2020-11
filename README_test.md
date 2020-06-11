@@ -26,81 +26,85 @@ To do navigation, robots use local map created by SLAM and position calculated b
 
 - [Youtube](https://youtu.be/pPz9lZsde4Q/) 2차 중간평가 발표 + 시연 영상
 - [Youtube](https://youtu.be/QH6-VXfbB1o/) 최종 발표 영상
+- [Youtube](https://youtu.be/_80_dxk4334/) 최종 홍보 영상
+- [Youtube](https://youtu.be/ugHmFtuxD78/) 최종 시연 영상
 
 ## 4. 팀 소개
 
 ### Professor : 주용수
 
 
-<img align="left" src="./images/dahun.jpeg" height="180px">
+<img align="left" src="./images/dahun.jpeg" height="210px">
 
 ```markdown
 * Name: 김다훈
 * Student ID: 20153155
 * Email: as1084089@kookmin.ac.kr
 * Role:
-  - Project Leader
-  - IMU 캘리브레이션 및 데이터 처리
-  - 사용자에게 제공할 최단경로 알고리즘 개발
-  - LiDAR 센서 데이터 처리 및 SLAM 알고리즘 수정
+  - 하드웨어 설계 제작
+  - Point op node 제작
+  - OpenCR Firmware
+  - Data Share Protocol
+    
 ```
 
-<img align="left" src="./images/seonpil.jpeg" height="180px">
+<img align="left" src="./images/seonpil.jpeg" height="210px">
 
 ```markdown
 * Name: 김선필
 * Student ID: 20143038
 * Email: ksp2246@kookmin.ac.kr
 * Role:
-  - Hardware 설계 및 관리
-  - 3D 모델링 및 프린팅
-  - Object Detection 개발 및 Dataset 라벨링 툴 개발
-  - 시스템 구조 설계
+  - 하드웨어 설계 제작
+  - Point op node 제작
+  - Path Calculation
+  - Lane Detection
+  - RoomNum 인식
 ```
 
 
-<img align="left" src="./images/myungsoo.jpeg" height="180px">
+<img align="left" src="./images/myungsoo.jpeg" height="210px">
 
 ```markdown
 * Name: 김명수
 * Student ID: 20133199
 * Email: msbmkim@gmail.com
 * Role:
-  - 사용자에게 길안내 서비스(UI) 개발 및 관리
-  - AWS EC2 를 이용한 웹 서버 작업
-  - Json Server 개발 및 Data 관리
-
-
+  - AWS Setting
+  - Web Server UX / UI
+  - JSON Server
+  - Data Share Protocol
+    
 ```
 
 
-<img align="left" src="./images/hanul.jpeg" height="180px">
+<img align="left" src="./images/hanul.jpeg" height="210px">
 
 ```markdown
 * Name: 배한울
 * Student ID: 20153184
 * Email: gksdnf0407@gmail.com
 * Role:
-  - 모터 컨트롤러 개발 및 관리
-  - 각 센서와의 Nvidia Jetson Tx2 연동 시스템 구축
-  - Hardware 설계 및 관리
-
-
+  - 하드웨어 설계 제작
+  - Point op node 제작
+  - OpenCR Firmware
+  - Obstacle Detection
+    
 ```
 
 
-<img align="left" src="./images/chanwoo.jpeg" height="180px">
+<img align="left" src="./images/chanwoo.jpeg" height="210px">
 
 ```markdown
 * Name: 윤찬우
 * Student ID: 20153202
 * Email: ycw1879@kookmin.ac.kr
 * Role:
-  - IMU 캘리브레이션 및 데이터 처리
-  - 번호 추출 알고리즘 개발 및 관리
-  - Navigation 시스템 개발 및 관리
-
-
+  - 하드웨어 설계 제작
+  - YOLO
+  - Lane Detection
+  - Obstacle Detection
+    
 ```  
 
 
