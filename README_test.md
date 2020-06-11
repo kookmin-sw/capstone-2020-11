@@ -33,7 +33,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ### Professor : 주용수
 
 
-<img align="left" src="./images/dahun.jpeg" height="191px">
+<img align="left" src="./images/dahun.jpeg" height="200px">
 
 ```markdown
 * Name: 김다훈
@@ -47,7 +47,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
     
 ```
 
-<img align="left" src="./images/seonpil.jpeg" height="191px">
+<img align="left" src="./images/seonpil.jpeg" height="200px">
 
 ```markdown
 * Name: 김선필
@@ -62,7 +62,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ```
 
 
-<img align="left" src="./images/myungsoo.jpeg" height="191px">
+<img align="left" src="./images/myungsoo.jpeg" height="200px">
 
 ```markdown
 * Name: 김명수
@@ -77,7 +77,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ```
 
 
-<img align="left" src="./images/hanul.jpeg" height="191px">
+<img align="left" src="./images/hanul.jpeg" height="200px">
 
 ```markdown
 * Name: 배한울
@@ -92,7 +92,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ```
 
 
-<img align="left" src="./images/chanwoo.jpeg" height="191px">
+<img align="left" src="./images/chanwoo.jpeg" height="200px">
 
 ```markdown
 * Name: 윤찬우
