@@ -38,7 +38,7 @@ To do navigation, robots use local map created by SLAM and position calculated b
 ```markdown
 * Name: 김다훈
 * Student ID: 20153155
-* Email: as1084089@kookmin.ac.kr
+* Email: 
 * Role:
   - 하드웨어 설계 제작
   - Point op node 제작
